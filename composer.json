@@ -1,0 +1,18 @@
+{
+	"name": "menst/yii2-widgets",
+	"description": "Collection of widgets",
+	"type": "yii2-extension",
+	"keywords": ["yii2","extension","widget"],
+	"license": "BSD-3-Clause",
+	"authors": [
+		{
+			"name": "Roman Gayazov",
+			"email": "m.e.n.s.t@yandex.ru"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"menst\\widgets\\": "widgets/"
+		}
+	}
+}
