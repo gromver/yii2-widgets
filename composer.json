@@ -3,7 +3,7 @@
 	"description": "Collection of widgets",
 	"type": "yii2-extension",
 	"keywords": ["yii2","extension","widget"],
-	"license": "GNU-GPL-2",
+	"license": "GNU-GPL-v2",
 	"authors": [
 		{
 			"name": "Roman Gayazov",
