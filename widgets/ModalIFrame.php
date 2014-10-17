@@ -94,7 +94,7 @@ class ModalIFrame extends Widget {
 
     public static function emitDataJs($data)
     {
-        return "parent.$(window.frameElement).trigger('data', ".Json::encode($data).")";
+        return "parent.$(window.frameElement).trigger('data', " . Json::encode($data) . ")";
     }
 
     public static function emitData($data)
