@@ -15,6 +15,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\web\View;
+use Yii;
 
 /**
  * Class ModalIFrame
@@ -101,13 +102,13 @@ class ModalIFrame extends Widget {
     {
         echo Html::script(self::emitDataJs($data));
 
-        \Yii::$app->end();
+        Yii::$app->end();
     }
 
     public static function refreshPage()
     {
         echo Html::script('parent.location.href = parent.location.href');
 
-        \Yii::$app->end();
+        Yii::$app->end();
     }
 } 
