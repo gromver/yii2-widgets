@@ -1,5 +1,5 @@
 {
-	"name": "menst/yii2-widgets",
+	"name": "gromver/yii2-widgets",
 	"description": "Collection of widgets",
 	"type": "yii2-extension",
 	"keywords": ["yii2","extension","widget"],
@@ -7,12 +7,12 @@
 	"authors": [
 		{
 			"name": "Roman Gayazov",
-			"email": "m.e.n.s.t@yandex.ru"
+			"email": "gromver5@gmail.com"
 		}
 	],
 	"autoload": {
 		"psr-4": {
-			"menst\\widgets\\": "widgets/"
+			"gromver\\widgets\\": "widgets/"
 		}
 	}
 }

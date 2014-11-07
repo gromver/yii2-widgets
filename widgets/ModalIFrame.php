@@ -1,13 +1,13 @@
 <?php
 /**
- * @link https://github.com/menst/yii2-widgets#readme
+ * @link https://github.com/gromver/yii2-widgets#readme
  * @copyright Copyright (c) Gayazov Roman, 2014
- * @license https://github.com/menst/yii2-widgets/blob/master/LICENSE
+ * @license https://github.com/gromver/yii2-widgets/blob/master/LICENSE
  * @package yii2-widgets
  * @version 1.0.0
  */
 
-namespace menst\widgets;
+namespace gromver\widgets;
 
 use yii\base\Widget;
 use yii\bootstrap\Modal;
@@ -20,7 +20,7 @@ use Yii;
 /**
  * Class ModalIFrame
  * @package yii2-widgets
- * @author Gayazov Roman <m.e.n.s.t@yandex.ru>
+ * @author Gayazov Roman <gromver5@gmail.com>
  *
  * Замечен один баг - если в качестве кнопки использовать форму, то форма созданная через виджет ActiveForm работает криво, так как изза yii скриптов валидии
  * первое нажатие кнопки будет дважды обрабатыватся бутстрапом, тем самым сразу закрывая модальное окно, только после 2го сабмита виджет будет работь как предполагалось
