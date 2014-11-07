@@ -1,4 +1,4 @@
-Menst widgets
+Gromver widgets
 =============
 Collection of widgets
 
@@ -10,13 +10,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist menst/yii2-widgets "*"
+php composer.phar require --prefer-dist gromver/yii2-widgets "*"
 ```
 
 or add
 
 ```
-"menst/yii2-widgets": "*"
+"gromver/yii2-widgets": "*"
 ```
 
 to the require section of your `composer.json` file.
@@ -25,3 +25,4 @@ to the require section of your `composer.json` file.
 Usage
 -----
 
+TBD
