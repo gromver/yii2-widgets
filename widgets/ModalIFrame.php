@@ -80,16 +80,31 @@ class ModalIFrame extends Widget {
             'width' => '100%',
             'style' => 'border: 0',
         ], $this->iframeOptions);
-        $this->iframeOptions['id'] = $this->getId() . '-iframe';
+        $this->iframeOptions['id'] = $this->getIFrameId();
 
-        $this->modalOptions['id'] = $this->getId() . '-modal';
+        $this->modalOptions['id'] = $this->getModalId();
         $this->modalOptions['toggleButton'] = false;
 
-        $this->buttonOptions['id'] = $this->getId() . '-button';
+        $this->buttonOptions['id'] = $this->getButtonId();
         $this->buttonOptions['data-behavior'] = 'iframe';
         $this->buttonOptions['data-iframe'] = '#' . $this->iframeOptions['id'];
         $this->buttonOptions['data-toggle'] = 'modal';
         $this->buttonOptions['data-target'] = '#' . $this->modalOptions['id'];
+    }
+
+    public function getModalId()
+    {
+        return $this->getId() . '-modal';
+    }
+
+    public function getButtonId()
+    {
+        return $this->getId() . '-button';
+    }
+
+    public function getIFrameId()
+    {
+        return $this->getId() . '-iframe';
     }
 
 
