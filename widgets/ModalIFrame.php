@@ -9,7 +9,7 @@
 
 namespace gromver\widgets;
 
-use yii\base\Widget;
+
 use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -26,7 +26,8 @@ use Yii;
  * первое нажатие кнопки будет дважды обрабатыватся бутстрапом, тем самым сразу закрывая модальное окно, только после 2го сабмита виджет будет работь как предполагалось
  * поэтому надо использовать Html::beginForm() ... Html::endForm(), что впринципе и логично)
  */
-class ModalIFrame extends Widget {
+class ModalIFrame extends \yii\base\Widget
+{
     public $iframeOptions = [];
     public $iframeHandler = 'function(data){}';
     public $modalOptions = [];

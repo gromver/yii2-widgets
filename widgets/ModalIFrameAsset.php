@@ -10,7 +10,6 @@
 namespace gromver\widgets;
 
 
-use yii\web\AssetBundle;
 use yii\web\View;
 
 /**
@@ -18,7 +17,8 @@ use yii\web\View;
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  */
-class ModalIFrameAsset extends AssetBundle {
+class ModalIFrameAsset extends \yii\web\AssetBundle
+{
     public $sourcePath = '@gromver/widgets/assets';
     public $js = [
         'js/iframe.js',
