@@ -10,20 +10,26 @@
 namespace gromver\widgets;
 
 
+use yii\web\AssetBundle;
 use yii\web\View;
 
 /**
- * Class ModalIFrameAsset
+ * Class LazyLoadAsset
  * @package yii2-widgets
- * @author Gayazov Roman <gromver5@gmail.com>
  */
-class ModalIFrameAsset extends \yii\web\AssetBundle
-{
-    public $sourcePath = '@gromver/widgets/assets/modal-iframe';
+class LazyLoadAsset extends AssetBundle {
+    public $sourcePath = '@gromver/widgets/assets/lazy-load';
     public $js = [
-        'js/iframe.js',
+        'dist/jquery.lazyloadxt.extra.min.js',
+    ];
+    public $css = [
+        'dist/jquery.lazyloadxt.fadein.min.css',
+        'dist/jquery.lazyloadxt.spinner.min.css',
     ];
     public $jsOptions = [
         'position' => View::POS_END
     ];
-}
+    public $depends = [
+        'yii\web\JqueryAsset'
+    ];
+} 
