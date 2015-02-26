@@ -123,7 +123,7 @@ class ModalIFrame extends \yii\base\Widget
 
     public static function refreshPage()
     {
-        echo Html::script('parent.location.href = parent.location.href');
+        echo Html::script('parent.location.reload(true)');
 
         Yii::$app->end();
     }
