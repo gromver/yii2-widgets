@@ -10,25 +10,23 @@
 namespace gromver\widgets;
 
 
-use yii\web\View;
-
 /**
- * Class ModalIFrameAsset
+ * Class PopupAsset
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  */
-class ModalIFrameAsset extends \yii\web\AssetBundle
+class PopupAsset extends \yii\web\AssetBundle
 {
-    public $sourcePath = '@gromver/widgets/assets/modal-iframe';
+    public $sourcePath = '@gromver/widgets/assets/popup';
     public $js = [
-        'js/iframe.js',
+        //'js/jquery.popup.min.js'
+        //'js/jquery.ba-postmessage.min.js',
+        'js/my.popup.js',
     ];
-    /*public $jsOptions = [
-        'position' => View::POS_END
-    ];*/
-
+    public $css = [
+        'css/popup.css'
+    ];
     public $depends = [
-        '\yii\web\YiiAsset',
-        '\gromver\widgets\PopupAsset'
+        'yii\web\JqueryAsset'
     ];
 }
