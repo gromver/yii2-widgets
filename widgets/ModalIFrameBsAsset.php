@@ -11,15 +11,15 @@ namespace gromver\widgets;
 
 
 /**
- * Class ModalIFrameAsset
+ * Class ModalIFrameBsAsset
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  */
-class ModalIFrameAsset extends \yii\web\AssetBundle
+class ModalIFrameBsAsset extends \yii\web\AssetBundle
 {
     public $sourcePath = '@gromver/widgets/assets/modal-iframe';
     public $js = [
-        'js/iframe.js',
+        'js/iframe.bs.js',
     ];
 
     public $depends = [

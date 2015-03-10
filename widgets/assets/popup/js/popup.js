@@ -28,19 +28,21 @@ yii.gromverPopup = (function ($) {
             keepInlineChanges :  true,
 
             // Events
+            beforeOpen: function(popup) {},
             afterOpen: function(popup) {},
+            beforeClose: function(popup) {},
             afterClose: function() {},
 
             // Content
             modal : false,
             content : null,
-            width : null,
+            width : '80%',
             height : null
         },
         pub = {
             init: function() {
 
-            },//afterClose
+            },
             open: function(options) {
                 $.each(popupStack, function(index, popup) {
                     popup.hide();
@@ -49,11 +51,8 @@ yii.gromverPopup = (function ($) {
             },
             close: function() {
                 var popup;
-                if (popup = popupStack.pop()) {
-                    popup.close();
-                }
                 if (popupStack.length && (popup = popupStack[popupStack.length-1])) {
-                    popup.show();
+                    popup.close();
                 }
             }
         };
@@ -72,6 +71,8 @@ yii.gromverPopup = (function ($) {
         var self = this;
 
         this.options = $.extend(true, {}, defaults, options);
+
+        this.options.beforeOpen(this);
 
         // Create back and fade in
         this.$back = $('<div class="'+this.options.backClass+'"/>')
@@ -182,6 +183,7 @@ yii.gromverPopup = (function ($) {
             this.$container.hide();
         },
         close: function() {
+            this.options.beforeClose(this);
             this.$back.remove();
             this.$container.remove();
             delete this.$back;
@@ -191,6 +193,7 @@ yii.gromverPopup = (function ($) {
             this.options.afterClose();
         },
         center: function() {
+            //console.log(this);
             var pW = this.$container.children().outerWidth(true),
                 pH = this.$container.children().outerHeight(true),
                 wW = document.documentElement.clientWidth,

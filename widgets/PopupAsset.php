@@ -20,8 +20,7 @@ class PopupAsset extends \yii\web\AssetBundle
     public $sourcePath = '@gromver/widgets/assets/popup';
     public $js = [
         //'js/jquery.popup.min.js'
-        //'js/jquery.ba-postmessage.min.js',
-        'js/my.popup.js',
+        'js/popup.js',
     ];
     public $css = [
         'css/popup.css'

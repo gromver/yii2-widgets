@@ -10,11 +10,9 @@
 namespace gromver\widgets;
 
 
-use yii\bootstrap\Modal;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
-use yii\web\View;
 use Yii;
 
 /**
@@ -22,50 +20,41 @@ use Yii;
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  *
- * Замечен один баг - если в качестве кнопки использовать форму, то форма созданная через виджет ActiveForm работает криво, так как изза yii скриптов валидии
- * первое нажатие кнопки будет дважды обрабатыватся бутстрапом, тем самым сразу закрывая модальное окно, только после 2го сабмита виджет будет работь как предполагалось
- * поэтому надо использовать Html::beginForm() ... Html::endForm(), что впринципе и логично)
+ * <a href="/some/url" data-behavior="iframe" data-iframe-method="get" data-iframe-handler="function(data){}" data-params="{a:b}">push</a>
  */
 class ModalIFrame extends \yii\base\Widget
 {
+    public $options;
+    /**
+     * @var array
+     *  - width
+     *  - height auto
+     *  - dataHandler
+     */
     public $iframeOptions = [];
-    public $iframeHandler = 'function(data){}';
-    public $modalOptions = [];
-    public $buttonOptions = [];
-    public $buttonContent;
-    private $_containerTag;
-
-    public function renderModal()
-    {
-        Modal::begin($this->modalOptions);
-
-        echo Html::tag('iframe', '', $this->iframeOptions);
-
-        Modal::end();
-    }
-
-    public function init()
-    {
-        $this->initOptions();
-        $this->_containerTag = ArrayHelper::remove($this->buttonOptions, 'tag', 'span');
-        echo Html::beginTag($this->_containerTag, $this->buttonOptions);
-    }
-
+    /**
+     * @var array
+     *  - method
+     *  - params
+     */
+    public $formOptions;
+    public $url;
+    public $label = 'Show';
+    public $handler;
 
     public function run()
     {
-        echo $this->buttonContent;
-        echo Html::endTag($this->_containerTag);
+        $this->initOptions();
+
+        $tag = ArrayHelper::remove($this->options, 'tag', 'a');
+
+        if ($tag == 'a') {
+            echo Html::a($this->label, $this->url, $this->options);
+        } else {
+            echo Html::tag($tag, $this->label, $this->options);
+        }
 
         parent::run();
-
-        $this->getView()->on(View::EVENT_END_BODY, [$this, 'renderModal']);
-
-        $this->getView()->registerJs("$(document).on('data', '#{$this->iframeOptions["id"]}', function(e, data){
-            var handler = {$this->iframeHandler}
-            handler(data)
-            $('#{$this->modalOptions["id"]}').modal('hide')
-        })");
 
         $this->getView()->registerAssetBundle(ModalIFrameAsset::className());
     }
@@ -76,55 +65,62 @@ class ModalIFrame extends \yii\base\Widget
      */
     protected function initOptions()
     {
-        $this->iframeOptions = array_merge([
-            'height' => '500px',
-            'width' => '100%',
-            'style' => 'border: 0',
-        ], $this->iframeOptions);
-        $this->iframeOptions['id'] = $this->getIFrameId();
+        if (is_array($this->iframeOptions)) {
+            $this->options['data']['iframe'] = $this->iframeOptions;
+        }
 
-        $this->modalOptions['id'] = $this->getModalId();
-        $this->modalOptions['toggleButton'] = false;
+        if (is_array($this->formOptions)) {
+            $this->options['data']['form'] = $this->formOptions;
+        }
 
-        $this->buttonOptions['id'] = $this->getButtonId();
-        $this->buttonOptions['data-behavior'] = 'iframe';
-        $this->buttonOptions['data-iframe'] = '#' . $this->iframeOptions['id'];
-        $this->buttonOptions['data-toggle'] = 'modal';
-        $this->buttonOptions['data-target'] = '#' . $this->modalOptions['id'];
+        $this->options['data']['behavior'] = 'iframe';
+        if (isset($this->handler)) {
+            $this->options['data']['handler'] = $this->handler;
+        }
     }
 
-    public function getModalId()
+    public static function postDataJs($data, $closePopup = true)
     {
-        return $this->getId() . '-modal';
+        Yii::$app->view->registerAssetBundle(ModalIFrameAsset::className());
+
+        return "yii.gromverIframe.postData(" . Json::encode($data) . ");" . ($closePopup ? "yii.gromverIframe.closePopup();" : "");
     }
 
-    public function getButtonId()
+    public static function postData($data, $closePopup = true)
     {
-        return $this->getId() . '-button';
-    }
-
-    public function getIFrameId()
-    {
-        return $this->getId() . '-iframe';
-    }
-
-
-    public static function emitDataJs($data)
-    {
-        return "parent.$(window.frameElement).trigger('data', " . Json::encode($data) . ")";
-    }
-
-    public static function emitData($data)
-    {
-        echo Html::script(self::emitDataJs($data));
+        echo self::postMessageFunction();
+        echo Html::script("postIframeMessage('send', " . Json::encode($data) . ");");
+        if ($closePopup) {
+            echo Html::script("postIframeMessage('close');");
+        }
 
         Yii::$app->end();
     }
 
-    public static function refreshPage()
+    public static function refreshParent($closePopup = true)
     {
-        echo Html::script('parent.location.reload(true)');
+        echo self::postMessageFunction();
+        echo Html::script("postIframeMessage('refresh');");
+        if ($closePopup) {
+            echo Html::script("postIframeMessage('close')");
+        }
 
         Yii::$app->end();
+    }
+
+    private static function postMessageFunction()
+    {
+        return Html::script(
+<<<JS
+    function postIframeMessage(name, message, target) {
+        var data = {
+            name: name + '.iframe.gromver',
+            message: message
+        };
+
+        (target || window.parent).postMessage(JSON.stringify(data), window.location.origin);
+    }
+JS
+        );
     }
 } 
