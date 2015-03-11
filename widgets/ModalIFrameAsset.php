@@ -19,6 +19,8 @@ class ModalIFrameAsset extends \yii\web\AssetBundle
 {
     public $sourcePath = '@gromver/widgets/assets/modal-iframe';
     public $js = [
+        'js/jquery.browser.js',
+        'js/jquery.iframe-auto-height.js',
         'js/iframe.js',
     ];
 

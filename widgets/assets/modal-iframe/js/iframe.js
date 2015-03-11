@@ -13,7 +13,7 @@ yii.gromverIframe = (function ($) {
         relations = [],
         defaultIframeOptions = {
             width: '100%',
-            height: '400px',
+            height: 'content',
             frameborder: '0'
         },
         pub = {
@@ -141,8 +141,15 @@ yii.gromverIframe = (function ($) {
                 // temporarily add hidden inputs according to data-params
                 if (params && $.isPlainObject(params)) {
                     $.each(params, function (idx, obj) {
-                        $form.append('<input name="' + idx + '" value="' + obj + '" type="hidden">');
+                        $('<input name="' + idx + '" type="hidden">').val(obj).appendTo($form);
                     });
+                }
+
+                if (iframeOptions.height == 'content') {
+                    delete iframeOptions.height;
+                    $iframe.load(function(){
+                        $iframe.iframeAutoHeight();
+                    })
                 }
 
                 $iframe.attr(iframeOptions);
@@ -165,6 +172,13 @@ yii.gromverIframe = (function ($) {
                     content: $iframe,
                     afterClose: popRelation
                 };
+
+                if (iframeOptions.height == 'content') {
+                    delete iframeOptions.height;
+                    $iframe.load(function(){
+                        $iframe.iframeAutoHeight();
+                    })
+                }
 
                 $iframe.attr(iframeOptions);
                 $iframe.load(function(){

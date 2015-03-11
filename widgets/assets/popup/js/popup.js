@@ -110,12 +110,12 @@ yii.gromverPopup = (function ($) {
             // Preloader
             if( this.options.preloaderMarkup ){
 
-                this.$popup.hide();
+                this.$popup.css('opacity',0);
                 var $preloader = $(this.options.preloaderMarkup).appendTo($('body'));
 
                 $iframe.load(function(){
                     $preloader.remove();
-                    self.$popup.show();
+                    self.$popup.css('opacity',1);
                 })
 
             }
