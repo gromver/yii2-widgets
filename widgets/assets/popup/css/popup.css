@@ -1,35 +1,46 @@
 /*-------------------------------
-
 	POPUP.CSS
-
 -------------------------------*/
 
-.popup_back {
-	height: 100%;
-	left: 0;
-	position: fixed;
-	top: 0;
-	width: 100%;
-	z-index: 1100;
-}
-
-.popup_cont {
-	/*position: fixed;*/
+.popup-container {
     position: absolute;
-	z-index: 1102;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1100;
 }
 
-.preloader {
+.popup-background {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
 	z-index: 1101;
 }
 
-/*---------------------
+.popup-container .popup {
+    position: relative;
+    margin: 100px auto;
+    overflow: auto;
+    z-index: 1102;
+}
 
-	EDIT BELOW
+.preloader {
+    position: fixed;
+    width: 200px;
+    height: 30px;
+    line-height: 30px;
+    left: 50%;
+    top: 50%;
+    margin: -15px 0 0 -100px;
+    color: white;
+    text-align: center;
+    z-index: 1103;
+}
 
-*/
 
-.popup_close {
+.popup-close {
 	color: #888;
 	cursor: pointer;
 	position: absolute;
@@ -38,24 +49,17 @@
 	top: 0;
 }
 
-.popup_close:hover {
+.popup-close:hover {
 	color: #111;
 }
 
-.popup_back {
+.popup-background {
 	cursor: pointer;
 	background-color: #222;
 }
 
-div.popup {
+.popup {
 	background: #fff;
 	padding: 25px;
 	box-shadow: 0 3px 10px #222;
-}
-
-.preloader {
-	left: 50%;
-	margin: -10px 0 0 -25px;
-	position: fixed;
-	top: 50%;
 }

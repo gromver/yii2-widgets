@@ -14,18 +14,15 @@ yii.gromverPopup = (function ($) {
         defaults = {
 
             // Markup
-            backClass : 'popup_back',
-            backOpacity : 0.7,
-            containerClass : 'popup_cont',
-            closeContent : '<div class="popup_close">&times;</div>',
-            markup : '<div class="popup"><div class="popup_content"/></div>',
-            contentClass : 'popup_content',
-            preloaderContent : '<p class="preloader">Loading</p>',
-            activeClass : 'popup_active',
+            backgroundClass : 'popup-background',
+            backgroundOpacity : 0.7,
+            containerClass : 'popup-container',
+            popupMarkup : '<div class="popup"><div class="popup-content"/></div>',
+            closeMarkup : '<div class="popup-close">&times;</div>',
+            contentClass : 'popup-content',
+            preloaderMarkup : '<div class="preloader">Loading</div>',
             hideFlash : false,
             speed : 200,
-            popupPlaceholderClass : 'popup_placeholder',
-            keepInlineChanges :  true,
 
             // Events
             beforeOpen: function(popup) {},
@@ -74,24 +71,6 @@ yii.gromverPopup = (function ($) {
 
         this.options.beforeOpen(this);
 
-        // Create back and fade in
-        this.$back = $('<div class="'+this.options.backClass+'"/>')
-            .appendTo($('body'))
-            .css('opacity', this.options.backOpacity);
-            /*.css('opacity', 0)
-            .animate({
-                opacity : p.o.backOpacity
-            }, p.o.speed);*/
-
-        // If modal isn't specified, bind click event
-        if ( !this.options.modal ) {
-
-            this.$back.one('click.popup', function(){
-                self.close();
-            });
-
-        }
-
         // Should we hide the flash?
         if( this.options.hideFlash ){
 
@@ -99,116 +78,106 @@ yii.gromverPopup = (function ($) {
 
         }
 
-        // Preloader
-        /*if( this.options.preloaderContent ){
-
-            $preloader = $(this.options.preloaderContent)
-                .appendTo($('body'));
-
-        }*/
-
-
         // Create the container
         this.$container = $('<div class="'+this.options.containerClass+'">');
 
+        // Create back and fade in
+        this.$background = $('<div class="'+this.options.backgroundClass+'"/>')
+            .appendTo(this.$container)
+            .css('opacity', this.options.backgroundOpacity);
+
+        // If modal isn't specified, bind click event
+        if ( !this.options.modal ) {
+
+            this.$background.one('click.popup', function(){
+                self.close();
+            });
+
+        }
+
+        this.$popup = $(this.options.popupMarkup);
+
+        // Get the actual content element
+        this.$content = $('.'+this.options.contentClass, this.$popup);
+
+        $(this.options.content).appendTo(this.$content);
+
+        var $iframe = this.$content.find('iframe');
+
+        // если контент содержит айфрейм то можно отобразить прелоадер
+        if( $iframe.length && (!$iframe[0].contentWindow || ['uninitialized', 'loading'].indexOf($iframe[0].contentWindow.document.readyState) !== -1 ) ){
+
+            // Preloader
+            if( this.options.preloaderMarkup ){
+
+                this.$popup.hide();
+                var $preloader = $(this.options.preloaderMarkup).appendTo($('body'));
+
+                $iframe.load(function(){
+                    $preloader.remove();
+                    self.$popup.show();
+                })
+
+            }
+
+        }
+
         // Add in the popup markup
-        $(this.options.markup).appendTo(this.$container);
+        $(this.$popup).appendTo(this.$container);
 
         // Add in the close button
-        $(this.options.closeContent)
+        $(this.options.closeMarkup)
             .one('click', function() {
                 self.close();
             })
-            .appendTo(this.$container);
-
-        // Bind the resize event
-        $(window).resize($.proxy(this.center, this));
+            .appendTo(this.$popup);
 
         // Append the container to the body
-        // and set the opacity
-        this.$container.appendTo($('body'));//.css('opacity', 0);
-
-
-        // Get the actual content element
-        this.$content = $('.'+this.options.contentClass, this.$container);
-        $(this.options.content).appendTo(this.$content);
+        this.$container.appendTo($('body'));
 
         // Do we have a set width/height?
         if ( this.options.width ) {
 
-            this.$container.css('width', this.options.width, 10);
+            this.$popup.css('width', this.options.width, 10);
 
         } else {
 
-            this.$container.css('width', '');
+            this.$popup.css('width', '');
         }
 
         if ( this.options.height ) {
 
-            this.$container.css('height', this.options.height, 10);
+            this.$popup.css('height', this.options.height, 10);
 
         } else {
 
-            this.$container.css('height', '');
+            this.$popup.css('height', '');
 
         }
 
-        this.center();
+        this.$popup.css({
+            marginTop : "+=" + $(window).scrollTop()
+        });
 
         this.options.afterOpen(this);
-
-        // Put the content in place!
-        /*if( $p.hasClass(this.options.contentClass) ){
-
-            $p
-                .html(content);
-
-        }else{
-
-            $p
-                .find('.'+this.options.contentClass)
-                .html(content);
-
-        }*/
-
     }
 
     Popup.prototype = {
         show: function() {
-            this.$back.show();
             this.$container.show();
         },
         hide: function() {
-            this.$back.hide();
             this.$container.hide();
         },
         close: function() {
             this.options.beforeClose(this);
-            this.$back.remove();
             this.$container.remove();
-            delete this.$back;
             delete this.$container;
+            delete this.$background;
+            delete this.$popup;
             delete this.$content;
             cleanUp();
             this.options.afterClose();
-        },
-        center: function() {
-            //console.log(this);
-            var pW = this.$container.children().outerWidth(true),
-                pH = this.$container.children().outerHeight(true),
-                wW = document.documentElement.clientWidth,
-                wH = document.documentElement.clientHeight,
-                center = {
-                    top : wH * 0.5 - pH * 0.5,
-                    left : wW * 0.5 - pW * 0.5
-                };
-
-            this.$container.css(center);
-
-            // Only need force for IE6
-            this.$back.css({
-                height : document.documentElement.clientHeight
-            });
         }
     };
 
