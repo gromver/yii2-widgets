@@ -44,6 +44,7 @@ yii.gromverIframe = (function ($) {
                  - formOptions
                  */
                 var formOptions = $e.data('form'),
+                    popupOptions = $e.data('popup'),
                     iframeOptions = $e.data('iframe'),
                     action = $e.attr('href'),
                     handler = $e.data('handler');
@@ -74,6 +75,7 @@ yii.gromverIframe = (function ($) {
 
                 postMessage('open', {
                     action: action,
+                    popupOptions: popupOptions,
                     formOptions: formOptions,
                     iframeOptions: iframeOptions
                 });
@@ -86,7 +88,7 @@ yii.gromverIframe = (function ($) {
             message: message
         };
 
-        (target || window.parent).postMessage(JSON.stringify(data), window.location.origin);
+        (target || window.parent).postMessage(JSON.stringify(data), window.location.origin || window.location.href);
     }
 
     function initDataMethods() {
@@ -111,6 +113,9 @@ yii.gromverIframe = (function ($) {
         $(pub).on('open.iframe.gromver', function(e, data, source) {
             var action = data.action,
                 formOptions = data.formOptions,
+                popupOptions = $.extend(true, {
+                    afterClose: popRelation
+                }, data.popupOptions),
                 iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
 
             if (formOptions) {
@@ -118,11 +123,9 @@ yii.gromverIframe = (function ($) {
                     params = formOptions.params,
                     target = this.createIframeName(),
                     $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
-                    $form = $('<form target="' + target + '" method="' + method + '"></form>'),
-                    popupOptions = {
-                        content: $iframe,
-                        afterClose: popRelation
-                    };
+                    $form = $('<form target="' + target + '" method="' + method + '"></form>');
+
+                popupOptions.content = $iframe;
 
                 $form.prop('action', action);
 
@@ -145,7 +148,8 @@ yii.gromverIframe = (function ($) {
                     });
                 }
 
-                if (iframeOptions.height == 'content') {
+                // todo fix opera auto height
+                if (iframeOptions.height == 'content' && !$.browser.opera) {
                     delete iframeOptions.height;
                     $iframe.load(function(){
                         $iframe.iframeAutoHeight();
@@ -168,12 +172,10 @@ yii.gromverIframe = (function ($) {
 
                 $iframe = $('<iframe src="' + action + '"></iframe>');
 
-                popupOptions = {
-                    content: $iframe,
-                    afterClose: popRelation
-                };
+                popupOptions.content = $iframe;
 
-                if (iframeOptions.height == 'content') {
+                // todo fix opera auto height
+                if (iframeOptions.height == 'content' && !$.browser.opera) {
                     delete iframeOptions.height;
                     $iframe.load(function(){
                         $iframe.iframeAutoHeight();

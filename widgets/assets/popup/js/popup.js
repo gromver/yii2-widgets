@@ -155,6 +155,14 @@ yii.gromverPopup = (function ($) {
 
         }
 
+        if ( this.options.class ) {
+            this.$popup.addClass(this.options.class);
+        }
+
+        if ( this.options.style ) {
+            this.$popup.attr('style', this.options.style);
+        }
+
         this.$popup.css({
             marginTop : "+=" + $(window).scrollTop()
         });

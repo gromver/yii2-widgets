@@ -28,6 +28,14 @@ class ModalIFrame extends \yii\base\Widget
     /**
      * @var array
      *  - width
+     *  - height
+     *  - class
+     *  - style
+     */
+    public $popupOptions = [];
+    /**
+     * @var array
+     *  - width
      *  - height auto
      *  - dataHandler
      */
@@ -65,6 +73,10 @@ class ModalIFrame extends \yii\base\Widget
      */
     protected function initOptions()
     {
+        if (is_array($this->iframeOptions)) {
+            $this->options['data']['popup'] = $this->popupOptions;
+        }
+
         if (is_array($this->iframeOptions)) {
             $this->options['data']['iframe'] = $this->iframeOptions;
         }
