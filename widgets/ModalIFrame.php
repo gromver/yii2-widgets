@@ -130,7 +130,7 @@ class ModalIFrame extends \yii\base\Widget
             message: message
         };
 
-        (target || window.parent).postMessage(JSON.stringify(data), window.location.origin);
+        (target || window.parent).postMessage(JSON.stringify(data), window.location.origin || window.location.href);
     }
 JS
         );

@@ -11,20 +11,14 @@ namespace gromver\widgets;
 
 
 /**
- * Class ModalIFrameAsset
+ * Class ModalIFrameContentAsset
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  */
-class ModalIFrameAsset extends \yii\web\AssetBundle
+class ModalIFrameContentAsset extends \yii\web\AssetBundle
 {
     public $sourcePath = '@gromver/widgets/assets/modal-iframe';
     public $js = [
-        'js/iframeResizer.min.js',
-        'js/iframe.js',
-    ];
-
-    public $depends = [
-        '\yii\web\YiiAsset',
-        '\gromver\widgets\PopupAsset'
+        'js/iframeResizer.contentWindow.min.js',
     ];
 }

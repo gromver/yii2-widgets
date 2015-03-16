@@ -104,7 +104,11 @@ yii.gromverIframe = (function ($) {
 
     function initEvents() {
         attachPostMessageHandler(function(e) {
-            var data = JSON.parse(e.data);
+            try {
+                var data = JSON.parse(e.data);
+            } catch(e) {
+                return;
+            }
             if(data.name) {
                 $(pub).triggerHandler(data.name, [data.message, e.source]);
             }
@@ -116,16 +120,27 @@ yii.gromverIframe = (function ($) {
                 popupOptions = $.extend(true, {
                     afterClose: popRelation
                 }, data.popupOptions),
+                target = this.createIframeName(),
+                $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
                 iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
+
+            $iframe.load(function() {
+                pushRelation(source, this.contentWindow);
+
+                if (iframeOptions.height == 'content') {
+                    delete iframeOptions.height;
+                    $iframe.iFrameResize({
+                        checkOrigin: false,
+                        heightCalculationMethod: 'grow'
+                    });
+                }
+            });
+            $iframe.attr(iframeOptions);
 
             if (formOptions) {
                 var method = formOptions.method,
                     params = formOptions.params,
-                    target = this.createIframeName(),
-                    $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
                     $form = $('<form target="' + target + '" method="' + method + '"></form>');
-
-                popupOptions.content = $iframe;
 
                 $form.prop('action', action);
 
@@ -141,27 +156,15 @@ yii.gromverIframe = (function ($) {
                 }
                 $form.hide().appendTo('body');
 
-                // temporarily add hidden inputs according to data-params
                 if (params && $.isPlainObject(params)) {
                     $.each(params, function (idx, obj) {
                         $('<input name="' + idx + '" type="hidden">').val(obj).appendTo($form);
                     });
                 }
 
-                // todo fix opera auto height
-                if (iframeOptions.height == 'content' && !$.browser.opera) {
-                    delete iframeOptions.height;
-                    $iframe.load(function(){
-                        $iframe.iframeAutoHeight();
-                    })
-                }
-
-                $iframe.attr(iframeOptions);
-                $iframe.load(function(){
-                    pushRelation(source, this.contentWindow);
-                });
-
+                popupOptions.content = $iframe;
                 yii.gromverPopup.open(popupOptions);
+
                 $form.trigger('submit');
                 $form.remove();
             } else {
@@ -170,24 +173,10 @@ yii.gromverIframe = (function ($) {
                     action += "?" + Math.floor(Math.random() * 10000);
                 }
 
-                $iframe = $('<iframe src="' + action + '"></iframe>');
-
                 popupOptions.content = $iframe;
-
-                // todo fix opera auto height
-                if (iframeOptions.height == 'content' && !$.browser.opera) {
-                    delete iframeOptions.height;
-                    $iframe.load(function(){
-                        $iframe.iframeAutoHeight();
-                    })
-                }
-
-                $iframe.attr(iframeOptions);
-                $iframe.load(function(){
-                    pushRelation(source, this.contentWindow);
-                });
-
                 yii.gromverPopup.open(popupOptions);
+
+                $iframe.prop('src', action);
             }
         });
         // событие отправки данных (попадает в окно топ уровня, и оттуда пересылается нужному окну событием receive)
