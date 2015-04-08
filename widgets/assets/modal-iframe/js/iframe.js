@@ -126,7 +126,6 @@ yii.gromverIframe = (function ($) {
 
             $iframe.load(function() {
                 pushRelation(source, this.contentWindow);
-
                 if (iframeOptions.height == 'content') {
                     delete iframeOptions.height;
                     $iframe.iFrameResize({

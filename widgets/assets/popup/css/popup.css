@@ -26,6 +26,12 @@
     z-index: 1102;
 }
 
+@media (max-width: 762px) {
+    .popup-container .popup {
+        margin: 20px auto;
+    }
+}
+
 .preloader {
     position: fixed;
     width: 200px;
