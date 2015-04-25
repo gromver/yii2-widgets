@@ -62,8 +62,6 @@ class ModalIFrame extends \yii\base\Widget
             echo Html::tag($tag, $this->label, $this->options);
         }
 
-        parent::run();
-
         $this->getView()->registerAssetBundle(ModalIFrameAsset::className());
     }
 
@@ -73,7 +71,7 @@ class ModalIFrame extends \yii\base\Widget
      */
     protected function initOptions()
     {
-        if (is_array($this->iframeOptions)) {
+        if (is_array($this->popupOptions)) {
             $this->options['data']['popup'] = $this->popupOptions;
         }
 

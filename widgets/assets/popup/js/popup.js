@@ -20,6 +20,7 @@ yii.gromverPopup = (function ($) {
             popupMarkup : '<div class="popup"><div class="popup-content"/></div>',
             closeMarkup : '<div class="popup-close">&times;</div>',
             contentClass : 'popup-content',
+            popupOpenedClass : 'popup-opened',  //класс присваивается <html/> тегу, когда открыт попап
             preloaderMarkup : '<div class="preloader">Loading</div>',
             hideFlash : false,
             speed : 200,
@@ -146,6 +147,8 @@ yii.gromverPopup = (function ($) {
             marginTop : "+=" + $(window).scrollTop()
         });
 
+        $('html').addClass(this.options.popupOpenedClass);
+
         this.options.afterOpen(this);
     }
 
@@ -164,9 +167,21 @@ yii.gromverPopup = (function ($) {
             delete this.$popup;
             delete this.$content;
             cleanUp();
+            $('html').removeClass(this.options.popupOpenedClass);
             this.options.afterClose();
         }
     };
+
+    $(document).on('click.yii', '[data-behavior="btn-popup"]', function(event) {
+        var $this = $(this),
+            popupOptions = $this.data('popup') || {};
+
+        popupOptions.content = $this.find('.btn-popup_content').clone().show();
+        pub.open(popupOptions);
+
+        event.stopImmediatePropagation();
+        return false;
+    });
 
     return pub;
 })(jQuery);
