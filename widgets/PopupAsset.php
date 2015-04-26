@@ -25,6 +25,7 @@ class PopupAsset extends \yii\web\AssetBundle
         'css/popup.css'
     ];
     public $depends = [
+        'yii\web\YiiAsset',
         'yii\web\JqueryAsset'
     ];
 }

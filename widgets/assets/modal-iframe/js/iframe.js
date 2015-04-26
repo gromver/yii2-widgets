@@ -124,6 +124,7 @@ yii.gromverIframe = (function ($) {
                 $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
                 iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
 
+            // todo fix iframeResizer issues
             $iframe.load(function() {
                 pushRelation(source, this.contentWindow);
                 if (iframeOptions.height == 'content') {

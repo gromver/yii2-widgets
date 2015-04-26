@@ -55,7 +55,8 @@ yii.gromverPopup = (function ($) {
             }
         };
 
-    function cleanUp() {
+    // убирает из стека закрываемый попап и переключается на родительский попап(если есть)
+    function togglePopup() {
         var popup;
 
         popupStack.pop();
@@ -166,9 +167,9 @@ yii.gromverPopup = (function ($) {
             delete this.$background;
             delete this.$popup;
             delete this.$content;
-            cleanUp();
-            $('html').removeClass(this.options.popupOpenedClass);
             this.options.afterClose();
+            togglePopup();
+            $('html').removeClass(this.options.popupOpenedClass);
         }
     };
 

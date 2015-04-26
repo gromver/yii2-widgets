@@ -24,7 +24,7 @@ class ModalIFrameAsset extends \yii\web\AssetBundle
     ];
 
     public $depends = [
-        '\yii\web\YiiAsset',
-        '\gromver\widgets\PopupAsset'
+        'yii\web\YiiAsset',
+        'gromver\widgets\PopupAsset'
     ];
 }
