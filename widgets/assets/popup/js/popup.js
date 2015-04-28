@@ -177,7 +177,8 @@ yii.gromverPopup = (function ($) {
         var $this = $(this),
             popupOptions = $this.data('popup') || {};
 
-        popupOptions.content = $this.find('.btn-popup_content').clone().show();
+        popupOptions.content = $this.data('popupContent') || $this.find('.btn-popup_content').show();
+        $this.data('popupContent', popupOptions.content);
         pub.open(popupOptions);
 
         event.stopImmediatePropagation();
