@@ -162,7 +162,7 @@ yii.gromverPopup = (function ($) {
         },
         close: function() {
             this.options.beforeClose(this);
-            this.$container.remove();
+            this.$container.detach();
             delete this.$container;
             delete this.$background;
             delete this.$popup;
