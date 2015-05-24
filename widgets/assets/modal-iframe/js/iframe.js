@@ -46,7 +46,7 @@ yii.gromverIframe = (function ($) {
                 var formOptions = $e.data('form'),
                     popupOptions = $e.data('popup'),
                     iframeOptions = $e.data('iframe'),
-                    action = $e.attr('href'),
+                    action = $e.attr('href') || $e.data('href'),
                     handler = $e.data('handler');
 
                 if (handler) {

@@ -14,6 +14,7 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use Yii;
+use yii\helpers\Url;
 
 /**
  * Class ModalIFrame
@@ -59,6 +60,7 @@ class ModalIFrame extends \yii\base\Widget
         if ($tag == 'a') {
             echo Html::a($this->label, $this->url, $this->options);
         } else {
+            $this->options['data']['href'] = Url::to($this->url);
             echo Html::tag($tag, $this->label, $this->options);
         }
 
