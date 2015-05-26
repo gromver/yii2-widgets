@@ -20,6 +20,8 @@ yii.gromverIframe = (function ($) {
             namePrefix: 'gromver-iframe-',
             isActive: true,
             dataHandler: null,
+            actionHandler: null,
+            paramsHandler: null,
             init: function() {
                 initDataMethods();
                 initEvents();
@@ -47,12 +49,26 @@ yii.gromverIframe = (function ($) {
                     popupOptions = $e.data('popup'),
                     iframeOptions = $e.data('iframe'),
                     action = $e.attr('href') || $e.data('href'),
-                    handler = $e.data('handler');
+                    handler = $e.data('handler'),
+                    actionHandler = $e.data('actionHandler'),
+                    paramsHandler = $e.data('paramsHandler');
 
                 if (handler) {
                     eval("this.dataHandler = " + handler);
                 } else {
                     this.dataHandler = null;
+                }
+
+                if (actionHandler) {
+                    eval("this.actionHandler = " + actionHandler);
+                } else {
+                    this.actionHandler = null;
+                }
+
+                if (paramsHandler) {
+                    eval("this.paramsHandler = " + paramsHandler);
+                } else {
+                    this.paramsHandler = null;
                 }
 
                 if (iframeOptions && $.isPlainObject(iframeOptions)) {
@@ -156,6 +172,10 @@ yii.gromverIframe = (function ($) {
                 }
                 $form.hide().appendTo('body');
 
+                if (this.paramsHandler instanceof Function) {
+                    this.paramsHandler(params);
+                }
+
                 if (params && $.isPlainObject(params)) {
                     $.each(params, function (idx, obj) {
                         $('<input name="' + idx + '" type="hidden">').val(obj).appendTo($form);
@@ -168,6 +188,10 @@ yii.gromverIframe = (function ($) {
                 $form.trigger('submit');
                 $form.remove();
             } else {
+                if (this.actionHandler instanceof Function) {
+                    action = this.actionHandler(action);
+                }
+
                 if (window.location.pathname == action) {
                     //баг с отображением тойже страницы что отображена в родительском окне, добавим мусор в урл)
                     action += "?" + Math.floor(Math.random() * 10000);

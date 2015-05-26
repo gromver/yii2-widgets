@@ -25,8 +25,15 @@ use yii\helpers\Url;
  */
 class ModalIFrame extends \yii\base\Widget
 {
+    /**
+     * Настройки кнопки/ссылки
+     * @var array
+     *  - html аттрибуты
+     *  - queryHandler
+     */
     public $options;
     /**
+     * Настройки контейнера попапа
      * @var array
      *  - width
      *  - height
@@ -35,6 +42,7 @@ class ModalIFrame extends \yii\base\Widget
      */
     public $popupOptions = [];
     /**
+     * Настройки айфрейма
      * @var array
      *  - width
      *  - height auto
@@ -42,14 +50,43 @@ class ModalIFrame extends \yii\base\Widget
      */
     public $iframeOptions = [];
     /**
+     * Настройки формы
      * @var array
-     *  - method
-     *  - params
+     *  - method    get/post
+     *  - params    массив с параметрами формы
+     *  - paramsHandler
      */
     public $formOptions;
+    /**
+     * @var array|string
+     */
     public $url;
+    /**
+     * @var string
+     */
     public $label = 'Show';
+    /**
+     * Js функция для обработки данным передаваемых из айфрейма родительскому окну
+     * todo переименовать в dataHandler
+     * @var string
+     *
+     * пример: function(data) { $("#input").val(data.value) }
+     */
     public $handler;
+    /**
+     * Js функция для модификации урла страницы которая будет отображена в айфрейме
+     * @var string
+     *
+     * пример: function(url) { return url + "&foo=bar" }
+     */
+    public $actionHandler;
+    /**
+     * Js функция для модификаци параметров формы перед ее отправкой
+     * @var string
+     *
+     * пример: function(params) { params.foo = "bar" }
+     */
+    public $paramsHandler;
 
     public function run()
     {
@@ -88,6 +125,14 @@ class ModalIFrame extends \yii\base\Widget
         $this->options['data']['behavior'] = 'iframe';
         if (isset($this->handler)) {
             $this->options['data']['handler'] = $this->handler;
+        }
+
+        if (isset($this->actionHandler)) {
+            $this->options['data']['action-handler'] = $this->actionHandler;
+        }
+
+        if (isset($this->paramsHandler)) {
+            $this->options['data']['params-handler'] = $this->paramsHandler;
         }
     }
 
