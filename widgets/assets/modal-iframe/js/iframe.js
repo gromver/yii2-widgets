@@ -49,12 +49,12 @@ yii.gromverIframe = (function ($) {
                     popupOptions = $e.data('popup'),
                     iframeOptions = $e.data('iframe'),
                     action = $e.attr('href') || $e.data('href'),
-                    handler = $e.data('handler'),
+                    dataHandler = $e.data('dataHandler'),
                     actionHandler = $e.data('actionHandler'),
                     paramsHandler = $e.data('paramsHandler');
 
-                if (handler) {
-                    eval("this.dataHandler = " + handler);
+                if (dataHandler) {
+                    eval("this.dataHandler = " + dataHandler);
                 } else {
                     this.dataHandler = null;
                 }
@@ -134,6 +134,17 @@ yii.gromverIframe = (function ($) {
             var action = data.action,
                 formOptions = data.formOptions,
                 popupOptions = $.extend(true, {
+                    beforeClose: function(popup) {
+                        // при закрытии попапа постим месседж popup.close.iframe.gromver в айфрейм попапа
+                        postMessage('popup.close', {}, childRelation(source));
+                        // ждем когда ивент пройдет
+                        var def = $.Deferred();
+                        setTimeout(function() {
+                            def.resolve(popup);
+                        }, 0);
+
+                        return def;
+                    },
                     afterClose: popRelation
                 }, data.popupOptions),
                 target = this.createIframeName(),
@@ -252,7 +263,20 @@ yii.gromverIframe = (function ($) {
             }
         });
 
-        return parent;
+        return parent || window;
+    }
+
+    function childRelation(parent) {
+        var child;
+
+        $.each(relations, function(i, rel) {
+            if (rel.parent === parent) {
+                child = rel.child;
+                return false;
+            }
+        });
+
+        return child;
     }
 
     return pub;

@@ -67,12 +67,11 @@ class ModalIFrame extends \yii\base\Widget
     public $label = 'Show';
     /**
      * Js функция для обработки данным передаваемых из айфрейма родительскому окну
-     * todo переименовать в dataHandler
      * @var string
      *
      * пример: function(data) { $("#input").val(data.value) }
      */
-    public $handler;
+    public $dataHandler;
     /**
      * Js функция для модификации урла страницы которая будет отображена в айфрейме
      * @var string
@@ -123,8 +122,8 @@ class ModalIFrame extends \yii\base\Widget
         }
 
         $this->options['data']['behavior'] = 'iframe';
-        if (isset($this->handler)) {
-            $this->options['data']['handler'] = $this->handler;
+        if (isset($this->dataHandler)) {
+            $this->options['data']['data-handler'] = $this->dataHandler;
         }
 
         if (isset($this->actionHandler)) {
@@ -136,6 +135,13 @@ class ModalIFrame extends \yii\base\Widget
         }
     }
 
+    /**
+     * JS код для отправки данных в родительское окно
+     * @param $data
+     * @param bool $closePopup
+     * @return string
+     * @throws \yii\base\InvalidConfigException
+     */
     public static function postDataJs($data, $closePopup = true)
     {
         Yii::$app->view->registerAssetBundle(ModalIFrameAsset::className());
@@ -143,6 +149,12 @@ class ModalIFrame extends \yii\base\Widget
         return "yii.gromverIframe.postData(" . Json::encode($data) . ");" . ($closePopup ? "yii.gromverIframe.closePopup();" : "");
     }
 
+    /**
+     * Отправить данные в родительское онко и завершить приложение
+     * @param $data
+     * @param bool $closePopup
+     * @throws \yii\base\ExitException
+     */
     public static function postData($data, $closePopup = true)
     {
         echo self::postMessageFunction();
@@ -154,17 +166,38 @@ class ModalIFrame extends \yii\base\Widget
         Yii::$app->end();
     }
 
-    public static function refreshParent($closePopup = true)
+    /**
+     * Обновить страницу и закрыть приложение
+     * @throws \yii\base\ExitException
+     */
+    public static function refreshParent()
     {
         echo self::postMessageFunction();
         echo Html::script("postIframeMessage('refresh');");
-        if ($closePopup) {
-            echo Html::script("postIframeMessage('close')");
-        }
 
         Yii::$app->end();
     }
 
+    /**
+     * Поставить задачу на обновление страницы после закрытия модального окна
+     * @throws \yii\base\InvalidConfigException
+     */
+    public static function refreshParentOnClose()
+    {
+        Yii::$app->view->registerAssetBundle(ModalIFrameAsset::className());
+
+        Yii::$app->view->registerJs(<<<JS
+$(yii.gromverIframe).on('popup.close.iframe.gromver', function() {
+    yii.gromverIframe.refreshParent();
+});
+JS
+        );
+    }
+
+    /**
+     * JS функция хелпер для постинга сообщений, используеться в [[self::refreshParent]]
+     * @return string
+     */
     private static function postMessageFunction()
     {
         return Html::script(

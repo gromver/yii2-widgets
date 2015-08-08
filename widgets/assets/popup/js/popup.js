@@ -161,15 +161,29 @@ yii.gromverPopup = (function ($) {
             this.$container.hide();
         },
         close: function() {
-            this.options.beforeClose(this);
-            this.$container.detach();
-            delete this.$container;
-            delete this.$background;
-            delete this.$popup;
-            delete this.$content;
-            this.options.afterClose();
-            togglePopup();
-            $('html').removeClass(this.options.popupOpenedClass);
+            //this.options.beforeClose(this);
+            //this.$container.detach();
+            //delete this.$container;
+            //delete this.$background;
+            //delete this.$popup;
+            //delete this.$content;
+            //this.options.afterClose();
+            //togglePopup();
+            //$('html').removeClass(this.options.popupOpenedClass);
+            var def = $.Deferred();
+
+            def.then(this.options.beforeClose).then(function(popup) {
+                popup.$container.detach();
+                delete popup.$container;
+                delete popup.$background;
+                delete popup.$popup;
+                delete popup.$content;
+                popup.options.afterClose();
+                togglePopup();
+                $('html').removeClass(popup.options.popupOpenedClass);
+            });
+
+            def.resolve(this);
         }
     };
 
