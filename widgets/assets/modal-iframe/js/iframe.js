@@ -224,9 +224,14 @@ yii.gromverIframe = (function ($) {
                 this.dataHandler(data);
             }
         });
-        // событие перезагрузки страницы
+        // событие перезагрузки страницы (попадает в окно топ уровня, и оттуда пересылается нужному окну событием reload)
         $(pub).on('refresh.iframe.gromver', function(e, data, source) {
-            parentRelation(source).location.reload(true)
+            //parentRelation(source).location.reload(true)
+            postMessage('reload', data, parentRelation(source));
+            postMessage('close');
+        });
+        $(pub).on('reload.iframe.gromver', function (e, data, source) {
+            window.location.reload(true);
         });
         // событие закрытия модального окна
         $(pub).on('close.iframe.gromver', function(e, data, source) {
