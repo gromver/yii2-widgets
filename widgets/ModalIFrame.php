@@ -179,6 +179,18 @@ class ModalIFrame extends \yii\base\Widget
     }
 
     /**
+     * Сменить url страницы и закрыть приложение
+     * @throws \yii\base\ExitException
+     */
+    public static function redirectParent($url)
+    {
+        echo self::postMessageFunction();
+        echo Html::script("postIframeMessage('redirect', " . json_encode(Url::to($url)) . ");");
+
+        Yii::$app->end();
+    }
+
+    /**
      * Поставить задачу на обновление страницы после закрытия модального окна
      * @throws \yii\base\InvalidConfigException
      */

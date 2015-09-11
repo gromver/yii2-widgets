@@ -226,12 +226,19 @@ yii.gromverIframe = (function ($) {
         });
         // событие перезагрузки страницы (попадает в окно топ уровня, и оттуда пересылается нужному окну событием reload)
         $(pub).on('refresh.iframe.gromver', function(e, data, source) {
-            //parentRelation(source).location.reload(true)
             postMessage('reload', data, parentRelation(source));
             postMessage('close');
         });
         $(pub).on('reload.iframe.gromver', function (e, data, source) {
             window.location.reload(true);
+        });
+        // событие перезагрузки страницы (попадает в окно топ уровня, и оттуда пересылается нужному окну событием reload)
+        $(pub).on('redirect.iframe.gromver', function(e, data, source) {
+            postMessage('location.replace', data, parentRelation(source));
+            postMessage('close');
+        });
+        $(pub).on('location.replace.iframe.gromver', function (e, data, source) {
+            window.location.replace(data);
         });
         // событие закрытия модального окна
         $(pub).on('close.iframe.gromver', function(e, data, source) {
