@@ -152,16 +152,6 @@ yii.gromverIframe = (function ($) {
                 iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
 
             // todo fix iframeResizer issues
-            $iframe.load(function() {
-                pushRelation(source, this.contentWindow);
-                if (iframeOptions.height == 'content') {
-                    delete iframeOptions.height;
-                    $iframe.iFrameResize({
-                        checkOrigin: false,
-                        heightCalculationMethod: 'grow'
-                    });
-                }
-            });
             $iframe.attr(iframeOptions);
 
             if (formOptions) {
@@ -213,6 +203,18 @@ yii.gromverIframe = (function ($) {
 
                 $iframe.prop('src', action);
             }
+
+            // onload обработчик вешать после встраивания айфрейма в дом, иначе в safari/webkit событие сработает дважды
+            $iframe.load(function() {
+                pushRelation(source, this.contentWindow);
+                if (iframeOptions.height == 'content') {
+                    delete iframeOptions.height;
+                    $iframe.iFrameResize({
+                        checkOrigin: false,
+                        heightCalculationMethod: 'grow'
+                    });
+                }
+            });
         });
         // событие отправки данных (попадает в окно топ уровня, и оттуда пересылается нужному окну событием receive)
         $(pub).on('send.iframe.gromver', function(e, data, source) {
