@@ -5,57 +5,276 @@
 	Simple Popup plugin for Yii2 Grom Platform
 
 	@author Roman Gayazov
-	@version 1.0.0
+	@version 1.1.0
 
 -------------------------------*/
-
 yii.gromverPopup = (function ($) {
-    var popupStack = [],
-        defaults = {
+    var popupStack = []
+        counter = 0;
 
-            // Markup
-            backgroundClass : 'popup-background',
-            backgroundOpacity : 0.7,
-            containerClass : 'popup-container',
-            popupMarkup : '<div class="popup"><div class="popup-content"/></div>',
-            closeMarkup : '<div class="popup-close">&times;</div>',
-            contentClass : 'popup-content',
-            popupOpenedClass : 'popup-opened',  //класс присваивается <html/> тегу, когда открыт попап
-            preloaderMarkup : '<div class="preloader">Loading</div>',
-            hideFlash : false,
-            speed : 200,
+    var EVENT_KEY = '.grom.popup';
 
-            // Events
-            beforeOpen: function(popup) {},
-            afterOpen: function(popup) {},
-            beforeClose: function(popup) {},
-            afterClose: function() {},
+    var Default = {
+        backdrop: true, // true, false, 'static'
+        keyboard: true,
+        content : null,
+        width : '80%',
+        height : null
+    };
 
-            // Content
-            modal : false,
-            content : null,
-            width : '80%',
-            height : null
-        },
-        pub = {
-            init: function() {
+    var Event = {
+        HIDE: 'hiding' + EVENT_KEY,
+        HIDDEN: 'hidden' + EVENT_KEY,
+        SHOW: 'showing' + EVENT_KEY,
+        SHOWN: 'shown' + EVENT_KEY,
+        //FOCUSIN: 'focusin' + EVENT_KEY,
+        CLOSE: 'closing' + EVENT_KEY,
+        CLOSED: 'closed' + EVENT_KEY,
+        LOAD: 'loading' + EVENT_KEY,
+        LOADED: 'loaded' + EVENT_KEY,
+        //RESIZE: 'resize' + EVENT_KEY,
+        //CLICK_DISMISS: 'click.dismiss' + EVENT_KEY,
+        KEYDOWN_DISMISS: 'keydown.dismiss' + EVENT_KEY//,
+        //MOUSEUP_DISMISS: 'mouseup.dismiss' + EVENT_KEY,
+        //MOUSEDOWN_DISMISS: 'mousedown.dismiss' + EVENT_KEY,
+        //CLICK_DATA_API: 'click' + EVENT_KEY + DATA_API_KEY
+    };
 
-            },
-            open: function(options) {
-                $.each(popupStack, function(index, popup) {
-                    popup.hide();
+    var ClassName = {
+        BACKDROP: 'grom-backdrop',
+        CONTAINER: 'grom-popup',
+        CONTENT: 'grom-popup__content',
+        CLOSE: 'grom-popup__close',
+        OPEN: 'grom-popup-open'
+    };
+
+    function Popup(config) {
+        var _this = this;
+
+        this._id = ++counter;
+        this._config = config;
+        this.$container = $('<div/>').addClass(ClassName.CONTAINER).appendTo(document.body);
+        if (config.backdrop) {
+            this.$container.addClass(ClassName.CONTAINER + '_backdrop');
+            if (config.backdrop != 'static') {
+                this.$container.on('click', function (e) {
+                    if (e.target === this) {
+                        _this.close();
+                    }
                 });
-                popupStack.push(new Popup(options));
-            },
-            close: function() {
-                var popup;
-                if (popupStack.length && (popup = popupStack[popupStack.length-1])) {
-                    popup.close();
+            }
+        }
+        this.$popup = $('<div/>').addClass(ClassName.CONTENT).appendTo(this.$container);
+        this.$close = $('<div>&times;</div>').addClass(ClassName.CLOSE).on('click', function() {
+            _this.close();
+        }).appendTo(this.$popup);
+
+        // customize popup
+        if (config.width) {
+            this.$popup.css('width', config.width, 10);
+        } else {
+            this.$popup.css('width', '');
+        }
+
+        if (config.height) {
+            this.$popup.css('height', config.height, 10);
+        } else {
+            this.$popup.css('height', '');
+        }
+
+        if (config.class) {
+            this.$popup.addClass(config.class);
+        }
+
+        if (config.style) {
+            this.$popup.attr('style', config.style);
+        }
+
+        setTimeout(function () {
+            _this.show();
+        }, 0);
+    }
+
+    Popup.prototype = {
+        show: function () {
+            var _this = this,
+                complete = $.Deferred(),
+                showEvent = $.Event(Event.SHOW);
+
+            if (this._config.keyboard) {
+                console.log('attach ' + Event.KEYDOWN_DISMISS);
+                $(document).on(Event.KEYDOWN_DISMISS, function (event) {
+                    console.log('keydown');
+                    if (event.which === 27) {
+                        _this.close();
+                    }
+                });
+            }
+
+            this.$container.trigger(showEvent, [this]);
+
+            this.$container.addClass(ClassName.CONTAINER + '_visible');
+
+            if (isPromise(showEvent.result)) {
+                $.when(this.load(), showEvent.result).done(showPopup);
+            } else {
+                $.when(this.load()).done(showPopup);
+            }
+
+            function showPopup () {
+                $(document.body).addClass(ClassName.OPEN);
+                _this.$popup.addClass(ClassName.CONTENT + '_visible');
+
+                _this.$container.trigger(Event.SHOWN, [_this]);
+                complete.resolve(_this);
+            }
+
+            return complete.promise();
+        },
+        hide: function () {
+            var _this = this,
+                complete = $.Deferred(),
+                hideEvent = $.Event(Event.HIDE);
+
+            if (this._config.keyboard) {
+                console.log('detach ' + Event.KEYDOWN_DISMISS);
+
+                $(document).off(Event.KEYDOWN_DISMISS);
+            }
+
+            this.$container.trigger(hideEvent, [this]);
+
+            if (isPromise(hideEvent.result)) {
+                hideEvent.result.done(hidePopup);
+            } else {
+                hidePopup();
+            }
+
+            function hidePopup () {
+                _this.$container.removeClass(ClassName.CONTAINER + '_visible');
+                $(document.body).removeClass(ClassName.OPEN);
+
+                _this.$container.trigger(Event.HIDDEN, [_this]);
+                complete.resolve(_this);
+            }
+
+            return complete.promise();
+        },
+        close: function () {
+            var _this = this,
+                complete = $.Deferred(),
+                closeEvent = $.Event(Event.CLOSE);
+
+            this.hide();
+
+            this.$container.trigger(closeEvent, [this]);
+
+            if (isPromise(closeEvent.result)) {
+                closeEvent.result.done(closePopup);
+            } else {
+                closePopup();
+            }
+
+
+            function closePopup () {
+                _this.$container.trigger(Event.CLOSED, [_this]).detach();
+                delete _this.$container;
+                delete _this.$popup;
+                delete _this.$close;
+                delete _this.$content;
+                togglePopup();
+
+                complete.resolve(_this);
+            }
+
+            return complete.promise();
+        },
+        load: function() {
+            if (typeof this.$content !== "undefined") return this.$content;
+
+            var _this = this,
+                complete = $.Deferred(),
+                loadEvent = $.Event(Event.LOAD);
+
+            // определяем контент
+            this.$container.trigger(loadEvent, [this]);
+
+            if (isPromise(loadEvent.result)) {
+                console.log(loadEvent.result);
+                loadEvent.result.done(process);
+            } else {
+                process(this._config.content);
+            }
+
+            function process (content) {
+                //console.log('popup liading event')
+                if (content) {
+                    if (isPromise(content)) {
+                        // promise
+                        content.done(function (content) {
+                            _this.$content = $(content).appendTo(_this.$popup);
+                            _this.$container.trigger(Event.LOADED, [_this]);
+
+                            complete.resolve(_this);
+                        });
+                    } else {
+                        _this.$content = $(content).appendTo(_this.$popup);
+                        _this.$container.trigger(Event.LOADED, [_this]);
+
+                        complete.resolve(_this);
+                    }
+                } else {
+                    _this.$content = $('<p>Content is not defined!</p>').appendTo(_this.$popup);
+                    _this.$container.trigger(Event.LOADED, [_this]);
+
+                    complete.resolve(_this);
                 }
             }
-        };
 
-    // убирает из стека закрываемый попап и переключается на родительский попап(если есть)
+            return complete.promise();
+        },
+        prop: function (name) {
+            return this[name];
+        },
+        instance: function () {
+            return this;
+        }
+    };
+
+    function isPromise(obj) {
+        return obj && obj.then && obj.done && obj.fail;
+    }
+
+    var pub = {
+        open: function(config) {
+            $.each(popupStack, function(index, popup) {
+                popup.hide();
+            });
+
+            var instance = new Popup($.extend({}, Default, config));
+            popupStack.push(instance);
+
+            return instance.$container;
+        },
+        close: function() {
+            var popup;
+            if (popupStack.length && (popup = popupStack[popupStack.length-1])) {
+                popup.close();
+            }
+        },
+        one: function () {
+            dispatcher.one.apply(dispatcher, arguments)
+        },
+        bind: function () {
+            dispatcher.bind.apply(dispatcher, arguments)
+        },
+        unbind: function () {
+            dispatcher.unbind.apply(dispatcher, arguments)
+        }
+    };
+
+    var dispatcher = $(pub);
+
     function togglePopup() {
         var popup;
 
@@ -66,138 +285,41 @@ yii.gromverPopup = (function ($) {
         }
     }
 
-    function Popup(options) {
-        var self = this;
-
-        this.options = $.extend(true, {}, defaults, options);
-
-        this.options.beforeOpen(this);
-
-        if( this.options.hideFlash ){
-            $('object, embed').css('visibility', 'hidden');
-        }
-
-        this.$container = $('<div class="'+this.options.containerClass+'">');
-
-        this.$background = $('<div class="'+this.options.backgroundClass+'"/>')
-            .appendTo(this.$container)
-            .css('opacity', this.options.backgroundOpacity);
-
-        if ( !this.options.modal ) {
-
-            this.$background.one('click.popup', function(){
-                self.close();
-            });
-
-        }
-
-        this.$popup = $(this.options.popupMarkup);
-
-        this.$content = $('.'+this.options.contentClass, this.$popup);
-
-        $(this.options.content).appendTo(this.$content);
-
-        var $iframe = this.$content.find('iframe');
-
-        // если контент содержит айфрейм то можно отобразить прелоадер
-        if( $iframe.length && (!$iframe[0].contentWindow || ['uninitialized', 'loading'].indexOf($iframe[0].contentWindow.document.readyState) !== -1 ) ){
-            if( this.options.preloaderMarkup ){
-                //this.$popup.css('opacity',0);
-                this.$popup.addClass('invisible');
-                var $preloader = $(this.options.preloaderMarkup).appendTo($('body'));
-
-                $iframe.load(function(){
-                    $preloader.remove();
-                    //self.$popup.css('opacity',1);
-                    self.$popup.removeClass('invisible');
-                })
-            }
-        }
-
-        $(this.$popup).appendTo(this.$container);
-
-        $(this.options.closeMarkup)
-            .one('click', function() {
-                self.close();
-            })
-            .appendTo(this.$popup);
-
-        this.$container.appendTo($('body'));
-
-        if ( this.options.width ) {
-            this.$popup.css('width', this.options.width, 10);
-        } else {
-            this.$popup.css('width', '');
-        }
-
-        if ( this.options.height ) {
-            this.$popup.css('height', this.options.height, 10);
-        } else {
-            this.$popup.css('height', '');
-        }
-
-        if ( this.options.class ) {
-            this.$popup.addClass(this.options.class);
-        }
-
-        if ( this.options.style ) {
-            this.$popup.attr('style', this.options.style);
-        }
-
-        this.$popup.css({
-            marginTop : "+=" + $(window).scrollTop()
-        });
-
-        $('html').addClass(this.options.popupOpenedClass);
-
-        this.options.afterOpen(this);
-    }
-
-    Popup.prototype = {
-        show: function() {
-            this.$container.show();
-        },
-        hide: function() {
-            this.$container.hide();
-        },
-        close: function() {
-            //this.options.beforeClose(this);
-            //this.$container.detach();
-            //delete this.$container;
-            //delete this.$background;
-            //delete this.$popup;
-            //delete this.$content;
-            //this.options.afterClose();
-            //togglePopup();
-            //$('html').removeClass(this.options.popupOpenedClass);
-            var def = $.Deferred();
-
-            def.then(this.options.beforeClose).then(function(popup) {
-                popup.$container.detach();
-                delete popup.$container;
-                delete popup.$background;
-                delete popup.$popup;
-                delete popup.$content;
-                popup.options.afterClose();
-                togglePopup();
-                $('html').removeClass(popup.options.popupOpenedClass);
-            });
-
-            def.resolve(this);
-        }
-    };
-
-    $(document).on('click.yii', '[data-behavior="btn-popup"]', function(event) {
+    $(document).on('click.yii', '[data-behavior="grom-popup"]', function(event) {
         var $this = $(this),
-            popupOptions = $this.data('popup') || {};
+            config = {
+                backdrop: $this.data('backdrop'),
+                keyboard: $this.data('keyboard')
+            };
 
-        popupOptions.content = $this.data('popupContent') || $this.find('> .btn-popup_content').show();
-        $this.data('popupContent', popupOptions.content);
-        pub.open(popupOptions);
+        //todo добавить обработку настройку конфига
+        config.content = ($this.attr('href') ? $.get($this.attr('href')) : null) || $this.data('popupContent');
+        pub.open(config);
 
         event.stopImmediatePropagation();
-        return false;
+        event.preventDefault();
     });
 
     return pub;
+
+    //$.fn.gromPopup = function (config, relatedTarget) {
+    //    return this.each(function () {
+    //        var data = $(this).data(DATA_KEY);
+    //        var _config = $.extend({}, Default, /*Modal.Default, */$(this).data(), typeof config === 'object' && config);
+    //
+    //        if (!data) {
+    //            data = new Popup(this, _config);
+    //            $(this).data(DATA_KEY, data);
+    //        }
+    //
+    //        if (typeof config === 'string') {
+    //            if (data[config] === undefined) {
+    //                throw new Error('No method named "' + config + '"');
+    //            }
+    //            data[config](relatedTarget);
+    //        } else if (_config.show) {
+    //            data.show(relatedTarget);
+    //        }
+    //    });
+    //}
 })(jQuery);

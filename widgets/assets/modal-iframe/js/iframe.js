@@ -5,7 +5,7 @@
  Iframe manager plugin for Yii2 Grom Platform
 
  @author Roman Gayazov
- @version 1.0.0
+ @version 1.0.1
 
  -------------------------------*/
 yii.gromverIframe = (function ($) {
@@ -133,20 +133,7 @@ yii.gromverIframe = (function ($) {
         $(pub).on('open.iframe.gromver', function(e, data, source) {
             var action = data.action,
                 formOptions = data.formOptions,
-                popupOptions = $.extend(true, {
-                    beforeClose: function(popup) {
-                        // при закрытии попапа постим месседж popup.close.iframe.gromver в айфрейм попапа
-                        postMessage('popup.close', {}, childRelation(source));
-                        // ждем когда ивент пройдет
-                        var def = $.Deferred();
-                        setTimeout(function() {
-                            def.resolve(popup);
-                        }, 0);
-
-                        return def;
-                    },
-                    afterClose: popRelation
-                }, data.popupOptions),
+                popupOptions = $.extend(true, data.popupOptions),
                 target = this.createIframeName(),
                 $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
                 iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
@@ -171,7 +158,7 @@ yii.gromverIframe = (function ($) {
                         $form.append('<input name="' + csrfParam + '" value="' + yii.getCsrfToken() + '" type="hidden">');
                     }
                 }
-                $form.hide().appendTo('body');
+                $form.hide().appendTo(document.body);
 
                 if (this.paramsHandler instanceof Function) {
                     this.paramsHandler(params);
@@ -184,10 +171,11 @@ yii.gromverIframe = (function ($) {
                 }
 
                 popupOptions.content = $iframe;
-                yii.gromverPopup.open(popupOptions);
-
-                $form.trigger('submit');
-                $form.remove();
+                var $popup = yii.gromverPopup.open(popupOptions);
+                $popup.one('loaded.grom.popup', function() {
+                    $form.trigger('submit');
+                    $form.remove();
+                });
             } else {
                 if (this.actionHandler instanceof Function) {
                     action = this.actionHandler(action);
@@ -198,10 +186,10 @@ yii.gromverIframe = (function ($) {
                     action += "?" + Math.floor(Math.random() * 10000);
                 }
 
-                popupOptions.content = $iframe;
-                yii.gromverPopup.open(popupOptions);
-
                 $iframe.prop('src', action);
+
+                popupOptions.content = $iframe;
+                $popup = yii.gromverPopup.open(popupOptions);
             }
 
             // onload обработчик вешать после встраивания айфрейма в дом, иначе в safari/webkit событие сработает дважды
@@ -215,6 +203,31 @@ yii.gromverIframe = (function ($) {
                     });
                 }
             });
+
+            $popup.one('showing.grom.popup', function(e, popup) {
+                console.log('iframe showing');
+
+                var def = $.Deferred();
+
+                $iframe.load(function() {
+                    console.log('iframe loaded');
+                    def.resolve($iframe);
+                });
+
+                return def.promise();
+            });
+            $popup.one('closing.grom.popup', function(e, popup) {
+                // при закрытии попапа постим месседж popup.close.iframe.gromver в айфрейм попапа
+                postMessage('popup.close', {}, childRelation(source));
+                // ждем когда ивент пройдет
+                var def = $.Deferred();
+                setTimeout(function() {
+                    def.resolve();
+                }, 0);
+
+                return def.promise();
+            });
+            $popup.one('closed.grom.popup', popRelation);
         });
         // событие отправки данных (попадает в окно топ уровня, и оттуда пересылается нужному окну событием receive)
         $(pub).on('send.iframe.gromver', function(e, data, source) {

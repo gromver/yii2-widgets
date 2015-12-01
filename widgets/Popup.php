@@ -45,7 +45,7 @@ class Popup extends \yii\base\Widget
     public function init()
     {
         $this->options['id'] = $this->getId();
-        $this->options['data']['behavior'] = 'btn-popup';
+        $this->options['data']['behavior'] = 'grom-popup';
         Html::addCssClass($this->options, 'btn-popup');
 
         if (is_array($this->popupOptions) && !empty($this->popupOptions)) {
