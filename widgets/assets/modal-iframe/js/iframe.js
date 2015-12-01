@@ -25,11 +25,11 @@ yii.gromverIframe = (function ($) {
         SEND: 'send' + EVENT_KEY,                           // root window
         RECEIVE: 'receive' + EVENT_KEY,                     // child window
         REFRESH: 'refresh' + EVENT_KEY,                     // child window
-        REFRESH_PARENT: 'refresh.parent' + EVENT_KEY,       // root window
+        REFRESH_PARENT: 'refreshParent' + EVENT_KEY,       // root window
         REDIRECT: 'redirect' + EVENT_KEY,                   // child window
-        REDIRECT_PARENT: 'redirect.parent' + EVENT_KEY,     // root window
+        REDIRECT_PARENT: 'redirectParent' + EVENT_KEY,     // root window
         CLOSE: 'close' + EVENT_KEY,                         // root window
-        CLOSE_POPUP: 'close.popup' + EVENT_KEY              // child window
+        CLOSE_POPUP: 'closePopup' + EVENT_KEY              // child window
     };
 
     var pub = {

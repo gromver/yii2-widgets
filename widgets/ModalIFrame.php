@@ -177,7 +177,7 @@ class ModalIFrame extends \yii\base\Widget
     public static function refreshParent()
     {
         echo self::postMessageFunction();
-        echo Html::script("postIframeMessage('refresh.parent.grom.iframe');");
+        echo Html::script("postIframeMessage('refreshParent.grom.iframe');");
 
         Yii::$app->end();
     }
@@ -189,7 +189,7 @@ class ModalIFrame extends \yii\base\Widget
     public static function redirectParent($url)
     {
         echo self::postMessageFunction();
-        echo Html::script("postIframeMessage('redirect.parent.grom.iframe', " . json_encode(Url::to($url)) . ");");
+        echo Html::script("postIframeMessage('redirectParent.grom.iframe', " . json_encode(Url::to($url)) . ");");
 
         Yii::$app->end();
     }
@@ -203,7 +203,7 @@ class ModalIFrame extends \yii\base\Widget
         Yii::$app->view->registerAssetBundle(ModalIFrameAsset::className());
 
         Yii::$app->view->registerJs(<<<JS
-$(yii.gromverIframe).on('close.popup.grom.iframe', function() {
+$(yii.gromverIframe).on('closePopup.grom.iframe', function() {
     yii.gromverIframe.refreshParent();
 });
 JS
