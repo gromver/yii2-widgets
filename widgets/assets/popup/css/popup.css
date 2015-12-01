@@ -5,10 +5,10 @@
 .grom-popup {
     position: fixed;
     top: 0;
-    left: 0;
+    left: -10000px;
     width: 100%;
     height: 100%;
-    display: none;
+    /*display: none;*/
     z-index: 1100;
     overflow: auto;
 }
@@ -16,30 +16,19 @@
     background-color: rgba(34, 34, 34, 0.7);
 }
 
-.grom-backdrop {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    display: none;
-    background-color: #000000;
-    opacity: .6;
-}
-
-.grom-backdrop_visible {
-    display: block;
-}
-
 .grom-popup__content {
     display: none;
     position: relative;
     margin: 100px auto;
+    min-height: 100px;
     background: #ffffff;
-    padding: 20px;
+    padding: 0;
     z-index: 1102;
 }
-.grom-popup_visible, .grom-popup__content_visible {
+.grom-popup_visible {
+    left: 0;
+}
+.grom-popup__content_visible {
     display: block;
 }
 
@@ -58,3 +47,8 @@
 .grom-popup-open {
     overflow-y: hidden;
 }
+
+/*.grom-popup__content {
+    overflow: hidden;
+    transition: height .5s;
+}*/

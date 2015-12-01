@@ -21,7 +21,7 @@ use yii\helpers\Url;
  * @package yii2-widgets
  * @author Gayazov Roman <gromver5@gmail.com>
  *
- * <a href="/some/url" data-behavior="iframe" data-iframe-method="get" data-iframe-handler="function(data){}" data-params="{a:b}">push</a>
+ * <a href="/some/url" data-behavior="iframe" data-iframe-method="get" data-iframe-handler="function(data){}" data-popup="{backdrop: 'static', keyboard: false}" data-params="{a:b}">push</a>
  */
 class ModalIFrame extends \yii\base\Widget
 {
@@ -35,6 +35,8 @@ class ModalIFrame extends \yii\base\Widget
     /**
      * Настройки контейнера попапа
      * @var array
+     *  - backdrop
+     *  - keyboard
      *  - width
      *  - height
      *  - class
@@ -47,6 +49,8 @@ class ModalIFrame extends \yii\base\Widget
      *  - width
      *  - height auto
      *  - dataHandler
+     *  - actionHandler
+     *  - paramsHandler
      */
     public $iframeOptions = [];
     /**
@@ -158,9 +162,9 @@ class ModalIFrame extends \yii\base\Widget
     public static function postData($data, $closePopup = true)
     {
         echo self::postMessageFunction();
-        echo Html::script("postIframeMessage('send', " . Json::encode($data) . ");");
+        echo Html::script("postIframeMessage('send.grom.iframe', " . Json::encode($data) . ");");
         if ($closePopup) {
-            echo Html::script("postIframeMessage('close');");
+            echo Html::script("postIframeMessage('close.grom.iframe');");
         }
 
         Yii::$app->end();
@@ -173,7 +177,7 @@ class ModalIFrame extends \yii\base\Widget
     public static function refreshParent()
     {
         echo self::postMessageFunction();
-        echo Html::script("postIframeMessage('refresh');");
+        echo Html::script("postIframeMessage('refresh.parent.grom.iframe');");
 
         Yii::$app->end();
     }
@@ -185,7 +189,7 @@ class ModalIFrame extends \yii\base\Widget
     public static function redirectParent($url)
     {
         echo self::postMessageFunction();
-        echo Html::script("postIframeMessage('redirect', " . json_encode(Url::to($url)) . ");");
+        echo Html::script("postIframeMessage('redirect.parent.grom.iframe', " . json_encode(Url::to($url)) . ");");
 
         Yii::$app->end();
     }
@@ -199,7 +203,7 @@ class ModalIFrame extends \yii\base\Widget
         Yii::$app->view->registerAssetBundle(ModalIFrameAsset::className());
 
         Yii::$app->view->registerJs(<<<JS
-$(yii.gromverIframe).on('popup.close.iframe.gromver', function() {
+$(yii.gromverIframe).on('close.popup.grom.iframe', function() {
     yii.gromverIframe.refreshParent();
 });
 JS
@@ -216,7 +220,7 @@ JS
 <<<JS
     function postIframeMessage(name, message, target) {
         var data = {
-            name: name + '.iframe.gromver',
+            name: name,
             message: message
         };
 

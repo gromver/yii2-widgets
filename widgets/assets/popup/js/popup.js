@@ -9,8 +9,8 @@
 
 -------------------------------*/
 yii.gromverPopup = (function ($) {
-    var popupStack = []
-        counter = 0;
+    var popupStack = [],
+        popupCounter = 0;
 
     var EVENT_KEY = '.grom.popup';
 
@@ -27,17 +27,11 @@ yii.gromverPopup = (function ($) {
         HIDDEN: 'hidden' + EVENT_KEY,
         SHOW: 'showing' + EVENT_KEY,
         SHOWN: 'shown' + EVENT_KEY,
-        //FOCUSIN: 'focusin' + EVENT_KEY,
         CLOSE: 'closing' + EVENT_KEY,
         CLOSED: 'closed' + EVENT_KEY,
         LOAD: 'loading' + EVENT_KEY,
         LOADED: 'loaded' + EVENT_KEY,
-        //RESIZE: 'resize' + EVENT_KEY,
-        //CLICK_DISMISS: 'click.dismiss' + EVENT_KEY,
         KEYDOWN_DISMISS: 'keydown.dismiss' + EVENT_KEY//,
-        //MOUSEUP_DISMISS: 'mouseup.dismiss' + EVENT_KEY,
-        //MOUSEDOWN_DISMISS: 'mousedown.dismiss' + EVENT_KEY,
-        //CLICK_DATA_API: 'click' + EVENT_KEY + DATA_API_KEY
     };
 
     var ClassName = {
@@ -51,7 +45,7 @@ yii.gromverPopup = (function ($) {
     function Popup(config) {
         var _this = this;
 
-        this._id = ++counter;
+        this._id = ++popupCounter;
         this._config = config;
         this.$container = $('<div/>').addClass(ClassName.CONTAINER).appendTo(document.body);
         if (config.backdrop) {
@@ -102,9 +96,7 @@ yii.gromverPopup = (function ($) {
                 showEvent = $.Event(Event.SHOW);
 
             if (this._config.keyboard) {
-                console.log('attach ' + Event.KEYDOWN_DISMISS);
-                $(document).on(Event.KEYDOWN_DISMISS, function (event) {
-                    console.log('keydown');
+                $(document).on(Event.KEYDOWN_DISMISS + this._id, function (event) {
                     if (event.which === 27) {
                         _this.close();
                     }
@@ -137,9 +129,7 @@ yii.gromverPopup = (function ($) {
                 hideEvent = $.Event(Event.HIDE);
 
             if (this._config.keyboard) {
-                console.log('detach ' + Event.KEYDOWN_DISMISS);
-
-                $(document).off(Event.KEYDOWN_DISMISS);
+                $(document).off(Event.KEYDOWN_DISMISS + this._id);
             }
 
             this.$container.trigger(hideEvent, [this]);
@@ -165,6 +155,8 @@ yii.gromverPopup = (function ($) {
                 complete = $.Deferred(),
                 closeEvent = $.Event(Event.CLOSE);
 
+            togglePopup();
+
             this.hide();
 
             this.$container.trigger(closeEvent, [this]);
@@ -182,7 +174,6 @@ yii.gromverPopup = (function ($) {
                 delete _this.$popup;
                 delete _this.$close;
                 delete _this.$content;
-                togglePopup();
 
                 complete.resolve(_this);
             }
@@ -200,14 +191,12 @@ yii.gromverPopup = (function ($) {
             this.$container.trigger(loadEvent, [this]);
 
             if (isPromise(loadEvent.result)) {
-                console.log(loadEvent.result);
                 loadEvent.result.done(process);
             } else {
                 process(this._config.content);
             }
 
             function process (content) {
-                //console.log('popup liading event')
                 if (content) {
                     if (isPromise(content)) {
                         // promise
@@ -292,8 +281,7 @@ yii.gromverPopup = (function ($) {
                 keyboard: $this.data('keyboard')
             };
 
-        //todo добавить обработку настройку конфига
-        config.content = ($this.attr('href') ? $.get($this.attr('href')) : null) || $this.data('popupContent');
+        config.content = ($this.attr('href') ? $.get($this.attr('href')) : null) || $this.data('popupContent') || ($this.data('popupSource') ? $($this.data('popupSource')).clone().show() : null);
         pub.open(config);
 
         event.stopImmediatePropagation();

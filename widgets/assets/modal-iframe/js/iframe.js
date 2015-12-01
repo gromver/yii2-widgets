@@ -9,98 +9,118 @@
 
  -------------------------------*/
 yii.gromverIframe = (function ($) {
-    var iframeCount = 0,
-        relations = [],
-        defaultIframeOptions = {
-            width: '100%',
-            height: 'content',
-            frameborder: '0'
+    var iframeCounter = 0,
+        relations = [];
+    
+    var EVENT_KEY = '.grom.iframe';
+    
+    var Default = {
+        width: '100%',
+        height: 'content',
+        frameborder: '0'
+    };
+
+    var Event = {
+        OPEN: 'open' + EVENT_KEY,                           // root window
+        SEND: 'send' + EVENT_KEY,                           // root window
+        RECEIVE: 'receive' + EVENT_KEY,                     // child window
+        REFRESH: 'refresh' + EVENT_KEY,                     // child window
+        REFRESH_PARENT: 'refresh.parent' + EVENT_KEY,       // root window
+        REDIRECT: 'redirect' + EVENT_KEY,                   // child window
+        REDIRECT_PARENT: 'redirect.parent' + EVENT_KEY,     // root window
+        CLOSE: 'close' + EVENT_KEY,                         // root window
+        CLOSE_POPUP: 'close.popup' + EVENT_KEY              // child window
+    };
+
+    var pub = {
+        namePrefix: 'grom-iframe-',
+        isActive: true,
+        dataHandler: null,      // function (data) { ... }
+        actionHandler: null,    // function (formAction) { return newFormAction }
+        paramsHandler: null,    // function (formParams) { return newFormParams }
+        init: function() {
+            initDataMethods();
+            initEvents();
         },
-        pub = {
-            namePrefix: 'gromver-iframe-',
-            isActive: true,
-            dataHandler: null,
-            actionHandler: null,
-            paramsHandler: null,
-            init: function() {
-                initDataMethods();
-                initEvents();
-            },
-            createIframeName: function() {
-                return this.namePrefix + (++iframeCount);
-            },
-            postData: function(data) {
-                postMessage('send', data);
-            },
-            refreshParent: function() {
-                postMessage('refresh');
-            },
-            // закрывает активное модальное окно
-            closePopup: function() {
-                postMessage('close');
-            },
-            handleAction: function ($e) {
-                /*
-                 - action
-                 - iframeOptions
-                 - formOptions
-                 */
-                var formOptions = $e.data('form'),
-                    popupOptions = $e.data('popup'),
-                    iframeOptions = $e.data('iframe'),
-                    action = $e.attr('href') || $e.data('href'),
-                    dataHandler = $e.data('dataHandler'),
-                    actionHandler = $e.data('actionHandler'),
-                    paramsHandler = $e.data('paramsHandler');
+        // отослать данные в родительское окно
+        postData: function(data) {
+            postMessage(Event.SEND, data);
+        },
+        // обновить родительское окно
+        refreshParent: function() {
+            postMessage(Event.REFRESH_PARENT);
+        },
+        // закрывает активное модальное окно
+        closePopup: function() {
+            postMessage(Event.CLOSE);
+        },
+        handleAction: function ($e) {
+            /*
+             - action
+             - iframeOptions
+             - formOptions
+             */
+            var formOptions = $e.data('form'),
+                popupOptions = $e.data('popup'),
+                iframeOptions = $e.data('iframe'),
+                action = $e.attr('href') || $e.data('href'),
+                dataHandler = $e.data('dataHandler'),
+                actionHandler = $e.data('actionHandler'),
+                paramsHandler = $e.data('paramsHandler');
 
-                if (dataHandler) {
-                    eval("this.dataHandler = " + dataHandler);
-                } else {
-                    this.dataHandler = null;
-                }
-
-                if (actionHandler) {
-                    eval("this.actionHandler = " + actionHandler);
-                } else {
-                    this.actionHandler = null;
-                }
-
-                if (paramsHandler) {
-                    eval("this.paramsHandler = " + paramsHandler);
-                } else {
-                    this.paramsHandler = null;
-                }
-
-                if (iframeOptions && $.isPlainObject(iframeOptions)) {
-                    if ($.type(iframeOptions.src) === 'string') {
-                        action = iframeOptions.src;
-                    }
-                }
-
-                if (formOptions && $.isPlainObject(formOptions)) {
-                    formOptions.method = formOptions.method || 'get';
-
-                    if ($.type(formOptions.action) === 'string') {
-                        action = formOptions.action;
-                    }
-
-                    if (!action || !action.match(/(^\/|:\/\/)/)) {
-                        action = window.location.href;
-                    }
-                }
-
-                postMessage('open', {
-                    action: action,
-                    popupOptions: popupOptions,
-                    formOptions: formOptions,
-                    iframeOptions: iframeOptions
-                });
+            if (dataHandler) {
+                eval("this.dataHandler = " + dataHandler);
+            } else {
+                this.dataHandler = null;
             }
-        };
 
+            if (actionHandler) {
+                eval("this.actionHandler = " + actionHandler);
+            } else {
+                this.actionHandler = null;
+            }
+
+            if (paramsHandler) {
+                eval("this.paramsHandler = " + paramsHandler);
+            } else {
+                this.paramsHandler = null;
+            }
+
+            if (iframeOptions && $.isPlainObject(iframeOptions)) {
+                if ($.type(iframeOptions.src) === 'string') {
+                    action = iframeOptions.src;
+                }
+            }
+
+            if (formOptions && $.isPlainObject(formOptions)) {
+                formOptions.method = formOptions.method || 'get';
+
+                if ($.type(formOptions.action) === 'string') {
+                    action = formOptions.action;
+                }
+
+                if (!action || !action.match(/(^\/|:\/\/)/)) {
+                    action = window.location.href;
+                }
+            }
+
+            postMessage(Event.OPEN, {
+                action: action,
+                popupOptions: popupOptions,
+                formOptions: formOptions,
+                iframeOptions: iframeOptions
+            });
+        }
+    };
+
+    function createIframeName() {
+        return pub.namePrefix + (++iframeCounter);
+    }
+
+    // отправка сообщения с целевое окно, по умолчанию в родительское
     function postMessage(name, message, target) {
         var data = {
-            name: name + '.iframe.gromver',
+            name: name,
             message: message
         };
 
@@ -130,13 +150,13 @@ yii.gromverIframe = (function ($) {
             }
         });
 
-        $(pub).on('open.iframe.gromver', function(e, data, source) {
+        $(pub).on(Event.OPEN, function(e, data, source) {
             var action = data.action,
                 formOptions = data.formOptions,
-                popupOptions = $.extend(true, data.popupOptions),
-                target = this.createIframeName(),
+                popupOptions = data.popupOptions,
+                target = createIframeName(),
                 $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
-                iframeOptions = $.extend(true, {}, defaultIframeOptions, data.iframeOptions);
+                iframeOptions = $.extend(true, {}, Default, data.iframeOptions);
 
             // todo fix iframeResizer issues
             $iframe.attr(iframeOptions);
@@ -172,6 +192,8 @@ yii.gromverIframe = (function ($) {
 
                 popupOptions.content = $iframe;
                 var $popup = yii.gromverPopup.open(popupOptions);
+
+                // после интеграции айфрейма в дом, сабмитим в него форму
                 $popup.one('loaded.grom.popup', function() {
                     $form.trigger('submit');
                     $form.remove();
@@ -199,26 +221,26 @@ yii.gromverIframe = (function ($) {
                     delete iframeOptions.height;
                     $iframe.iFrameResize({
                         checkOrigin: false,
-                        heightCalculationMethod: 'grow'
+                        heightCalculationMethod: 'grow'//,'max'
                     });
                 }
             });
 
+            // задерживаем отрисовку контента до того момента как загрузится iframe
             $popup.one('showing.grom.popup', function(e, popup) {
-                console.log('iframe showing');
-
                 var def = $.Deferred();
 
                 $iframe.load(function() {
-                    console.log('iframe loaded');
-                    def.resolve($iframe);
+                    setTimeout(function() {
+                        def.resolve($iframe);
+                    }, 100);
                 });
 
                 return def.promise();
             });
             $popup.one('closing.grom.popup', function(e, popup) {
-                // при закрытии попапа постим месседж popup.close.iframe.gromver в айфрейм попапа
-                postMessage('popup.close', {}, childRelation(source));
+                // при закрытии попапа постим месседж close.popup.iframe.gromver в айфрейм попапа
+                postMessage(Event.CLOSE_POPUP, {}, childRelation(source));
                 // ждем когда ивент пройдет
                 var def = $.Deferred();
                 setTimeout(function() {
@@ -230,33 +252,34 @@ yii.gromverIframe = (function ($) {
             $popup.one('closed.grom.popup', popRelation);
         });
         // событие отправки данных (попадает в окно топ уровня, и оттуда пересылается нужному окну событием receive)
-        $(pub).on('send.iframe.gromver', function(e, data, source) {
-            postMessage('receive', data, parentRelation(source));
+        $(pub).on(Event.SEND, function(e, data, source) {
+            postMessage(Event.RECEIVE, data, parentRelation(source));
         });
         // событие для получателя данных
-        $(pub).on('receive.iframe.gromver', function(e, data, source) {
+        $(pub).on(Event.RECEIVE, function(e, data, source) {
             if ($.isFunction(this.dataHandler)) {
                 this.dataHandler(data);
             }
         });
         // событие перезагрузки страницы (попадает в окно топ уровня, и оттуда пересылается нужному окну событием reload)
-        $(pub).on('refresh.iframe.gromver', function(e, data, source) {
-            postMessage('reload', data, parentRelation(source));
-            postMessage('close');
+        $(pub).on(Event.REFRESH_PARENT, function(e, data, source) {
+            // окно source посылает сообщение обновить его предка
+            postMessage(Event.REFRESH, data, parentRelation(source));
+            postMessage(Event.CLOSE);
         });
-        $(pub).on('reload.iframe.gromver', function (e, data, source) {
+        $(pub).on(Event.REFRESH, function (e, data, source) {
             window.location.reload(true);
         });
         // событие перезагрузки страницы (попадает в окно топ уровня, и оттуда пересылается нужному окну событием reload)
-        $(pub).on('redirect.iframe.gromver', function(e, data, source) {
-            postMessage('location.replace', data, parentRelation(source));
-            postMessage('close');
+        $(pub).on(Event.REDIRECT_PARENT, function(e, data, source) {
+            postMessage(Event.REDIRECT, data, parentRelation(source));
+            postMessage(Event.CLOSE);
         });
-        $(pub).on('location.replace.iframe.gromver', function (e, data, source) {
+        $(pub).on(Event.REDIRECT, function (e, data, source) {
             window.location.replace(data);
         });
         // событие закрытия модального окна
-        $(pub).on('close.iframe.gromver', function(e, data, source) {
+        $(pub).on(Event.CLOSE, function(e, data, source) {
             yii.gromverPopup.close();
         });
     }
