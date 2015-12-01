@@ -23,13 +23,13 @@ yii.gromverPopup = (function ($) {
     };
 
     var Event = {
-        HIDE: 'hiding' + EVENT_KEY,
+        HIDE: 'hide' + EVENT_KEY,
         HIDDEN: 'hidden' + EVENT_KEY,
-        SHOW: 'showing' + EVENT_KEY,
+        SHOW: 'show' + EVENT_KEY,
         SHOWN: 'shown' + EVENT_KEY,
-        CLOSE: 'closing' + EVENT_KEY,
+        CLOSE: 'close' + EVENT_KEY,
         CLOSED: 'closed' + EVENT_KEY,
-        LOAD: 'loading' + EVENT_KEY,
+        LOAD: 'load' + EVENT_KEY,
         LOADED: 'loaded' + EVENT_KEY,
         KEYDOWN_DISMISS: 'keydown.dismiss' + EVENT_KEY//,
     };

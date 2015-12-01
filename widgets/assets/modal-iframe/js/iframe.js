@@ -158,7 +158,7 @@ yii.gromverIframe = (function ($) {
                 $iframe = $('<iframe id="' + target + '" name="' + target + '"></iframe>'),
                 iframeOptions = $.extend(true, {}, Default, data.iframeOptions);
 
-            // todo fix iframeResizer issues
+            // todo пробрасывать события нажатия в родительское окно (для обработки escape)
             $iframe.attr(iframeOptions);
 
             if (formOptions) {
@@ -227,7 +227,7 @@ yii.gromverIframe = (function ($) {
             });
 
             // задерживаем отрисовку контента до того момента как загрузится iframe
-            $popup.one('showing.grom.popup', function(e, popup) {
+            $popup.one('show.grom.popup', function(e, popup) {
                 var def = $.Deferred();
 
                 $iframe.load(function() {
@@ -238,7 +238,7 @@ yii.gromverIframe = (function ($) {
 
                 return def.promise();
             });
-            $popup.one('closing.grom.popup', function(e, popup) {
+            $popup.one('close.grom.popup', function(e, popup) {
                 // при закрытии попапа постим месседж close.popup.iframe.gromver в айфрейм попапа
                 postMessage(Event.CLOSE_POPUP, {}, childRelation(source));
                 // ждем когда ивент пройдет
