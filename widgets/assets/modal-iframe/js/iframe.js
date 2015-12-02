@@ -11,9 +11,9 @@
 yii.gromverIframe = (function ($) {
     var iframeCounter = 0,
         relations = [];
-    
+
     var EVENT_KEY = '.grom.iframe';
-    
+
     var Default = {
         width: '100%',
         height: 'content',
@@ -221,7 +221,7 @@ yii.gromverIframe = (function ($) {
                     delete iframeOptions.height;
                     $iframe.iFrameResize({
                         checkOrigin: false,
-                        heightCalculationMethod: 'grow'//,'max'
+                        heightCalculationMethod: (navigator.userAgent.indexOf("MSIE") !== -1) ? 'max' : 'lowestElement'//'grow'
                     });
                 }
             });

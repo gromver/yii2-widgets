@@ -16,7 +16,7 @@
 }
 
 .grom-popup__content {
-    display: none;
+    visibility: hidden;
     position: relative;
     margin: 100px auto;
     min-height: 100px;
@@ -29,7 +29,7 @@
     left: 0;
 }
 .grom-popup__content_visible {
-    display: block;
+    visibility: visible;
 }
 
 .grom-popup__close {
