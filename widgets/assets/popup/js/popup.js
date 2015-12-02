@@ -1,13 +1,13 @@
 /*-------------------------------
 
-	popup.js
+ popup.js
 
-	Simple Popup plugin for Yii2 Grom Platform
+ Simple Popup plugin for Yii2 Grom Platform
 
-	@author Roman Gayazov
-	@version 1.1.0
+ @author Roman Gayazov
+ @version 1.1.0
 
--------------------------------*/
+ -------------------------------*/
 yii.gromverPopup = (function ($) {
     var popupStack = [],
         popupCounter = 0;
@@ -115,9 +115,9 @@ yii.gromverPopup = (function ($) {
 
             function showPopup () {
                 $(document.body).addClass(ClassName.OPEN);
+                _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.SHOWN, [_this]);
                 _this.$popup.addClass(ClassName.CONTENT + '_visible');
 
-                _this.$container.trigger(Event.SHOWN, [_this]);
                 complete.resolve(_this);
             }
 
@@ -202,19 +202,19 @@ yii.gromverPopup = (function ($) {
                         // promise
                         content.done(function (content) {
                             _this.$content = $(content).appendTo(_this.$popup);
-                            _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
+                            _this.$container.trigger(Event.LOADED, [_this]);
 
                             complete.resolve(_this);
                         });
                     } else {
                         _this.$content = $(content).appendTo(_this.$popup);
-                        _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
+                        _this.$container.trigger(Event.LOADED, [_this]);
 
                         complete.resolve(_this);
                     }
                 } else {
                     _this.$content = $('<p>Content is not defined!</p>').appendTo(_this.$popup);
-                    _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
+                    _this.$container.trigger(Event.LOADED, [_this]);
 
                     complete.resolve(_this);
                 }
