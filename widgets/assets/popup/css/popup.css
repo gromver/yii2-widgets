@@ -8,7 +8,6 @@
     left: -10000px;
     width: 100%;
     height: 100%;
-    /*display: none;*/
     z-index: 1100;
     overflow: auto;
 }
@@ -24,6 +23,7 @@
     background: #ffffff;
     padding: 0;
     z-index: 1102;
+    max-width: 100%;
 }
 .grom-popup_visible {
     left: 0;
@@ -34,10 +34,12 @@
 
 .grom-popup__close {
     position: absolute;
-    right: 15px;
-    top: 5px;
-    font-size: 24px;
     cursor: pointer;
+    font-size: 50px;
+    line-height: 0;
+    right: -6px;
+    top: -35px;
+    color: #ffffff;
 }
 
 .grom-popup__close:hover {
@@ -48,7 +50,15 @@
     overflow-y: hidden;
 }
 
-/*.grom-popup__content {
-    overflow: hidden;
-    transition: height .5s;
-}*/
+@media (max-width: 762px) {
+    .grom-popup {
+        padding: 0 10px;
+    }
+    .grom-popup__content {
+        margin-top: 50px;
+    }
+
+    .grom-popup__close {
+        top: -30px;
+    }
+}
