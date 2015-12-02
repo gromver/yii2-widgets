@@ -54,11 +54,12 @@
     .grom-popup {
         padding: 0 10px;
     }
+
     .grom-popup__content {
-        margin-top: 50px;
+        margin-top: 80px;
     }
 
-    .grom-popup__close {
+    /*.grom-popup__close {
         top: -30px;
-    }
+    }*/
 }

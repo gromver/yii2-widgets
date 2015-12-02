@@ -188,7 +188,7 @@ yii.gromverPopup = (function ($) {
                 loadEvent = $.Event(Event.LOAD);
 
             // определяем контент
-            this.$container.trigger(loadEvent, [this]);
+            this.$container.addClass(ClassName.CONTAINER + '_loading').trigger(loadEvent, [this]);
 
             if (isPromise(loadEvent.result)) {
                 loadEvent.result.done(process);
@@ -202,19 +202,19 @@ yii.gromverPopup = (function ($) {
                         // promise
                         content.done(function (content) {
                             _this.$content = $(content).appendTo(_this.$popup);
-                            _this.$container.trigger(Event.LOADED, [_this]);
+                            _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
 
                             complete.resolve(_this);
                         });
                     } else {
                         _this.$content = $(content).appendTo(_this.$popup);
-                        _this.$container.trigger(Event.LOADED, [_this]);
+                        _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
 
                         complete.resolve(_this);
                     }
                 } else {
                     _this.$content = $('<p>Content is not defined!</p>').appendTo(_this.$popup);
-                    _this.$container.trigger(Event.LOADED, [_this]);
+                    _this.$container.removeClass(ClassName.CONTAINER + '_loading').trigger(Event.LOADED, [_this]);
 
                     complete.resolve(_this);
                 }
