@@ -2,9 +2,9 @@
 
  popup.js
 
- Simple Popup plugin for Yii2 Grom Platform
+ Simple Popup plugin Yii2
 
- @author Roman Gayazov
+ @author gromver5@gmail.com
  @version 1.1.0
 
  -------------------------------*/

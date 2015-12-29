@@ -2,10 +2,10 @@
 
  IFRAME.JS
 
- Iframe manager plugin for Yii2 Grom Platform
+ Iframe manager plugin for Yii2
 
- @author Roman Gayazov
- @version 1.0.1
+ @author gromver5@gmail.com
+ @version 1.1.0
 
  -------------------------------*/
 yii.gromverIframe = (function ($) {
@@ -221,7 +221,7 @@ yii.gromverIframe = (function ($) {
                     delete iframeOptions.height;
                     $iframe.iFrameResize({
                         checkOrigin: false,
-                        heightCalculationMethod: (navigator.userAgent.indexOf("MSIE") !== -1) ? 'max' : 'lowestElement'//'grow'
+                        heightCalculationMethod: (navigator.userAgent.indexOf("MSIE") !== -1) ? 'max' : 'grow'//'lowestElement'
                     });
                 }
             });
